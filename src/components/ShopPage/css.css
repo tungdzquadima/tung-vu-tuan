@@ -372,4 +372,33 @@
   .product-card .buy-button:active {
     transform: translateY(1px);
   }
+   /* phần css cho form mua hàng */
+   .order-form {
+    margin: 20px 0;
+    padding: 20px;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+  }
+  
+  .order-form label {
+    display: block;
+    margin-bottom: 10px;
+  }
+  
+  .order-form input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 4px;
+    margin-bottom: 10px;
+  }
+  
+  .order-form button {
+    padding: 10px 20px;
+    background-color: #0a5;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
   

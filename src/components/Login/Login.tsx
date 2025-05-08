@@ -40,6 +40,7 @@ function Login() {
       }
       localStorage.setItem("isLoggedIn", "true"); // đoạn này là lưu đăng nhập
       localStorage.setItem("fullname", res.data[0].fullname);
+      localStorage.setItem("username", res.data[0].username);
 
       // Sau khi đăng nhập thành công, có thể chuyển trang hoặc lưu thông tin người dùng
       navigate("/products");
