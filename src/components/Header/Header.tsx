@@ -23,6 +23,8 @@ function Header() {
     setFullname("");
     navigate("/products"); // hoặc navigate("/login");
   };
+  // ... (giữ nguyên import và hook useEffect, useState, handleLogout)
+
   return (
     <>
       <header>
@@ -38,6 +40,16 @@ function Header() {
               <Link to="/products">SHOP</Link>
             </li>
           </ul>
+
+          {/* ✅ Thanh tìm kiếm ở giữa */}
+          <div className="search-container">
+            <input
+              type="text"
+              className="search-input"
+              placeholder="Tìm kiếm sản phẩm..."
+            />
+            <button className="search-button">🔍</button>
+          </div>
 
           <div className="nav-right">
             {fullname ? (

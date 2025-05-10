@@ -1,51 +1,81 @@
-/* General styling for form container */
+/* Login container */
 .hcn {
-    width: 100%;
-    max-width: 400px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #f4f4f9;
-    border-radius: 8px;
-    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #74ebd5, #9face6);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  animation: fadeIn 0.6s ease-in-out;
+}
+
+.hcn h1 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  color: #fff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Form styling */
+.hcn form {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 30px 40px;
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Input fields */
+.hcn input {
+  padding: 12px 16px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 12px;
+  background-color: rgba(255, 255, 255, 0.85);
+  transition: all 0.3s ease;
+}
+
+.hcn input:focus {
+  outline: none;
+  background-color: #fff;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+/* Submit button */
+.hcn button {
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #f6d365, #fda085);
+  color: #2d3436;
+  font-weight: bold;
+  font-size: 1rem;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.hcn button:hover {
+  background: linear-gradient(135deg, #f093fb, #f5576c);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-16px);
   }
-  
-  .hcn h1 {
-    text-align: center;
-    color: #333;
-    margin-bottom: 20px;
-    font-size: 24px;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
-  
-  .hcn form {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .hcn input {
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 16px;
-  }
-  
-  .hcn input:focus {
-    border-color: #007bff;
-    outline: none;
-  }
-  
-  .hcn button {
-    padding: 10px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  .hcn button:hover {
-    background-color: #0056b3;
-  }
-  
+}

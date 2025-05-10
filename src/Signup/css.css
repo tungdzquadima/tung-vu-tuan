@@ -1,53 +1,147 @@
 .signup-container {
-    width: 100%;
-    max-width: 400px;
-    margin: 80px auto;
-    padding: 30px;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 12px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-    font-family: Arial, sans-serif;
+  width: 60vw;
+  height: 66vh;
+  margin: auto;
+  margin-top: calc((100vh - 66vh) / 2);
+  border-radius: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  overflow: hidden;
+  position: relative;
+  background: rgba(255, 255, 255, 0.2); /* Lớp nền trong suốt để lộ ảnh nền */
+  backdrop-filter: blur(10px); /* Làm mờ phần nền */
+  animation: floatUp 1s ease forwards;
+}
+
+/* Ảnh nền phía sau */
+.signup-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("https://images.unsplash.com/photo-1503264116251-35a269479413?auto=format&fit=crop&w=1200&q=80");
+  background-size: cover;
+  background-position: center;
+  filter: brightness(0.6) blur(12px);
+  z-index: 0;
+  animation: fadeIn 2s ease forwards;
+}
+
+/* Phần nội dung form phía trên ảnh nền */
+.signup-container * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Các phần còn lại giữ nguyên như đã gửi ở trên: input, button, animation */
+.signup-container h1 {
+  font-size: 2.4rem;
+  color: #fff;
+  margin-bottom: 20px;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  animation: fadeIn 1s ease 0.3s forwards;
+}
+
+/* Form styling */
+.signup-container form {
+  width: 80%;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  animation: fadeIn 1s ease 0.6s forwards;
+}
+
+/* Input fields */
+.signup-container input {
+  padding: 14px 18px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 12px;
+  background-color: rgba(255, 255, 255, 0.9);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.signup-container input:focus {
+  outline: none;
+  background-color: #fff;
+  box-shadow: 0 0 12px rgba(255, 157, 105, 0.6);
+  transform: scale(1.02);
+}
+
+/* Button */
+.signup-container button {
+  padding: 14px;
+  background: linear-gradient(to right, #89f7fe, #66a6ff);
+  color: #2d3436;
+  font-weight: bold;
+  font-size: 1rem;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 1px;
+}
+
+.signup-container button:hover {
+  background: linear-gradient(to right, #fbc2eb, #a6c1ee);
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+/* Background animation (optional sparkle effect) */
+.signup-container::before {
+  content: "";
+  position: absolute;
+  top: -20%;
+  left: -20%;
+  width: 150%;
+  height: 150%;
+  background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.2), transparent),
+              radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1), transparent);
+  animation: rotate 12s linear infinite;
+  z-index: 0;
+}
+
+.signup-container * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Animations */
+@keyframes floatUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
   }
-  
-  .signup-container h1 {
-    text-align: center;
-    margin-bottom: 24px;
-    font-size: 22px;
-    color: #333;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
-  
-  .signup-container form {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
   }
-  
-  .signup-container input {
-    padding: 12px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    outline: none;
-    transition: border-color 0.2s;
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
-  
-  .signup-container input:focus {
-    border-color: #28a745;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
   }
-  
-  .signup-container button {
-    padding: 12px;
-    font-size: 16px;
-    background-color: #28a745;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.2s;
+  to {
+    transform: rotate(360deg);
   }
-  
-  .signup-container button:hover {
-    background-color: #218838;
-  }
-  
+}
