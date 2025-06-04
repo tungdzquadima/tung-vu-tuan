@@ -189,3 +189,91 @@
     transform: translateY(0);
   }
 }
+
+/* CSS cho phần lọc trạng thái đơn hàng */
+.status-filters {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 20px;
+  gap: 10px;
+}
+
+.status-filters button {
+  padding: 10px 20px;
+  background-color: #f39c12;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.status-filters button:hover {
+  background-color: #e67e22;
+  transform: scale(1.05);
+}
+
+/* CSS cho các đơn hàng khi bị mờ đi (đã hoàn thành hoặc đã hủy) */
+.admin-table tr {
+  transition: opacity 0.3s ease;
+}
+
+.admin-table tr.muted {
+  opacity: 0.5;
+}
+
+/* CSS cho trạng thái */
+.status-tag {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 10px;
+  color: white;
+  font-weight: bold;
+  text-transform: capitalize;
+}
+
+.status-pending {
+  background-color: #f44336; /* Đỏ */
+}
+
+.status-delivered {
+  background-color: #4caf50; /* Xanh lá */
+}
+
+.status-shipped {
+  background-color: #ff9800; /* Cam */
+}
+
+.status-cancelled {
+  background-color: #e53935; /* Đỏ đậm */
+}
+
+/* Thêm CSS cho hiệu ứng hover của các đơn hàng */
+.admin-table tr:hover {
+  background-color: #ffe0b2;
+  transform: scale(1.01);
+  transition: all 0.2s ease-in-out;
+}
+
+/* CSS cho các nút hành động */
+.action-button {
+  padding: 8px 12px;
+  margin: 4px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.action-button:hover {
+  transform: scale(1.05);
+}
+
+.delete-btn {
+  background-color: #e53935;
+}
+
+.delivered-btn {
+  background-color: #4caf50;
+}

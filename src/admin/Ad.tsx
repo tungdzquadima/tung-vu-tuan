@@ -1,189 +1,150 @@
 import React, { useEffect, useState } from "react";
-import instance from "../axios";
 import "./css.css";
+import instance from "../axios";
 
 interface Order {
-  id: string;
+  id: number;
   fullname: string;
-  user: string | null;
-  product: string;
-  quantity: number;
+  phoneNumber: string;
   address: string;
-  status?: string;
+  orderDate: string | null;
+  status: string;
+  totalMoney: number;
+  paymentMethod?: string;
+  shippingMethod?: string;
+  trackingNumber?: string;
 }
 
-interface Product {
-  id: string;
-  images: string[];
-  title: string;
-  brand: string;
-  price: number;
-  rating: number;
-  stock: number;
-  discountPercentage: number; // giảm giá phần trăm
-}
-
-const Ad: React.FC = () => {
+const AdminPage: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<"orders" | "add" | "delete">("orders");
   const [orders, setOrders] = useState<Order[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [activeTab, setActiveTab] = useState<"orders" | "add" | "delete">(
-    "orders"
-  );
-
-  const [newProduct, setNewProduct] = useState<Product>({
-    id: "",
-    images: [""],
-    title: "",
-    brand: "",
-    price: 0,
-    rating: 0,
-    stock: 0,
-    discountPercentage: 0,
-  });
+  const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
+  const [selectedStatus, setSelectedStatus] = useState<string>("");
 
   useEffect(() => {
     fetchOrders();
-    fetchProducts();
   }, []);
 
   const fetchOrders = async () => {
     try {
-      const res = await instance.get("/order");
-      setOrders(res.data);
+      const { data } = await instance.get<Order[]>("/api/v1/orders");
+      setOrders(data);
+      setFilteredOrders(data); // Hiển thị tất cả đơn hàng ban đầu
     } catch (error) {
       console.error("Lỗi khi lấy đơn hàng:", error);
     }
   };
 
-  const fetchProducts = async () => {
+  const handleCompleteOrder = async (id: number) => {
     try {
-      const res = await instance.get("/products");
-      setProducts(res.data);
+      await instance.patch(`/api/v1/orders/${id}/status`, { status: "delivered" });
+      fetchOrders(); // Fetch lại tất cả đơn hàng sau khi cập nhật
     } catch (error) {
-      console.error("Lỗi khi lấy sản phẩm:", error);
+      console.error("Lỗi khi cập nhật trạng thái đơn hàng:", error);
     }
   };
 
-  const handleDeleteOrder = async (id: string) => {
-    if (!window.confirm("Bạn có chắc muốn xóa đơn hàng này không?")) return;
+  const handleDeleteOrder = async (id: number) => {
     try {
-      await instance.delete(`/order/${id}`);
-      setOrders(orders.filter((order) => order.id !== id));
+      await instance.patch(`/api/v1/orders/${id}/status`, { status: "cancelled" });
+      fetchOrders(); // Fetch lại tất cả đơn hàng sau khi hủy
     } catch (error) {
-      console.error("Lỗi khi xóa:", error);
+      console.error("Lỗi khi hủy đơn hàng:", error);
     }
   };
 
-  const handleDelivered = async (id: string) => {
-    try {
-      await instance.patch(`/order/${id}`, { status: "delivered" });
-      setOrders(
-        orders.map((order) =>
-          order.id === id ? { ...order, status: "delivered" } : order
-        )
-      );
-    } catch (error) {
-      console.error("Lỗi khi cập nhật:", error);
+  const handleStatusFilter = (status: string) => {
+    setSelectedStatus(status);
+    if (status === "") {
+      setFilteredOrders(orders); // Nếu không có trạng thái lọc, hiển thị tất cả đơn hàng
+    } else {
+      setFilteredOrders(orders.filter((order) => order.status === status)); // Lọc theo trạng thái
     }
   };
 
-  const handleAddProduct = async () => {
-    try {
-      await instance.post("/products", newProduct);
-      alert("Thêm sản phẩm thành công!");
-      fetchProducts();
-      setNewProduct({
-        id: "",
-        images: [""],
-        title: "",
-        brand: "",
-        price: 0,
-        rating: 0,
-        stock: 0,
-        discountPercentage: 0,
-      });
-    } catch (error) {
-      console.error("Lỗi khi thêm sản phẩm:", error);
-    }
-  };
-
-  const handleDeleteProduct = async (id: string) => {
-    if (!window.confirm("Bạn có chắc muốn xóa sản phẩm này không?")) return;
-    try {
-      await instance.delete(`/products/${id}`);
-      setProducts(products.filter((p) => p.id !== id));
-    } catch (error) {
-      console.error("Lỗi khi xóa sản phẩm:", error);
+  const translateStatus = (status: string): string => {
+    switch (status) {
+      case "pending":
+        return "Chờ xử lý";
+      case "processing":
+        return "Đang xử lý";
+      case "shipped":
+        return "Đã gửi";
+      case "delivered":
+        return "Đã giao";
+      case "cancelled":
+        return "Đã hủy";
+      default:
+        return status;
     }
   };
 
   return (
     <div className="admin-wrapper">
       <div className="sidebar">
-        <button onClick={() => setActiveTab("orders")}>
-          📦 Quản lý đơn hàng
-        </button>
+        <button onClick={() => setActiveTab("orders")}>📦 Quản lý đơn hàng</button>
         <button onClick={() => setActiveTab("add")}>➕ Thêm sản phẩm</button>
         <button onClick={() => setActiveTab("delete")}>🗑️ Xóa sản phẩm</button>
       </div>
 
       <div className="content">
+        {/* Thêm 3 nút lọc trạng thái */}
+        <div className="status-filters">
+          <button onClick={() => handleStatusFilter("pending")}>Chờ xử lý</button>
+          <button onClick={() => handleStatusFilter("cancelled")}>Đã hủy</button>
+          <button onClick={() => handleStatusFilter("delivered")}>Đã hoàn thành</button>
+          <button onClick={() => handleStatusFilter("")}>Tất cả</button> {/* Hiển thị tất cả đơn hàng */}
+        </div>
+
         {activeTab === "orders" && (
           <>
-            <h1>📦 Quản lý Đơn hàng</h1>
+            <h2>📦 Danh sách Đơn hàng</h2>
             <table className="admin-table">
               <thead>
                 <tr>
                   <th>ID</th>
-                  <th>Họ tên</th>
-                  <th>User</th>
-                  <th>Sản phẩm</th>
-                  <th>Số lượng</th>
+                  <th>Người mua</th>
+                  <th>SĐT</th>
                   <th>Địa chỉ</th>
+                  <th>Ngày đặt</th>
                   <th>Trạng thái</th>
-                  <th>Thao tác</th>
+                  <th>Tổng tiền</th>
+                  <th>Hành động</th>
                 </tr>
               </thead>
               <tbody>
-                {orders.map((order) => (
-                  <tr key={order.id}>
-                    <td>{order.id}</td>
-                    <td>{order.fullname}</td>
-                    <td>{order.user ?? "Khách"}</td>
-                    <td>{order.product}</td>
-                    <td>{order.quantity}</td>
-                    <td>{order.address}</td>
-                    <td>
-                      <span
-                        className={`status-tag ${
-                          order.status === "delivered"
-                            ? "status-delivered"
-                            : "status-pending"
-                        }`}
-                      >
-                        {order.status === "delivered"
-                          ? "Đã giao"
-                          : "Đang xử lý"}
-                      </span>
-                    </td>
-                    <td>
-                      <button
-                        className="action-button delete-btn"
-                        onClick={() => handleDeleteOrder(order.id)}
-                      >
-                        ❌ Xóa
-                      </button>
-                      {order.status !== "delivered" && (
-                        <button
-                          className="action-button delivered-btn"
-                          onClick={() => handleDelivered(order.id)}
-                        >
-                          ✅ Giao hàng
-                        </button>
-                      )}
+                {filteredOrders.length > 0 ? (
+                  filteredOrders.map((order) => (
+                    <tr
+                      key={order.id}
+                      style={{
+                        opacity: order.status === "delivered" || order.status === "cancelled" ? 0.5 : 1,
+                      }}
+                    >
+                      <td>{order.id}</td>
+                      <td>{order.fullname}</td>
+                      <td>{order.phoneNumber}</td>
+                      <td>{order.address}</td>
+                      <td>{order.orderDate ? new Date(order.orderDate).toLocaleDateString() : "Chưa đặt"}</td>
+                      <td>{translateStatus(order.status)}</td>
+                      <td>{order.totalMoney?.toLocaleString()} đ</td>
+                      <td>
+                        {order.status !== "delivered" && order.status !== "cancelled" && (
+                          <>
+                            <button onClick={() => handleCompleteOrder(order.id)}>✅ Hoàn thành</button>
+                            <button onClick={() => handleDeleteOrder(order.id)}>🗑️ Xóa</button>
+                          </>
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={8} style={{ textAlign: "center" }}>
+                      Không có đơn hàng nào.
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </>
@@ -192,120 +153,36 @@ const Ad: React.FC = () => {
         {activeTab === "add" && (
           <div className="form-add">
             <h2>➕ Thêm sản phẩm</h2>
-            {[
-              "id",
-              "images",
-              "title",
-              "brand",
-              "price",
-              "rating",
-              "stock",
-              "discountPercentage",
-            ].map((field) => (
-              <div key={field}>
-                <label>
-                  {field}{" "}
-                  {field === "discountPercentage" && "(Giảm giá phần trăm)"}
-                </label>
-
-                {field === "images" ? (
-                  <textarea
-                    placeholder='Nhập các URL ảnh, cách nhau bởi dấu phẩy ("|")'
-                    value={
-                      Array.isArray(newProduct.images)
-                        ? newProduct.images.join("| ")
-                        : newProduct.images
-                    }
-                    onChange={(e) =>
-                      setNewProduct({
-                        ...newProduct,
-                        images: e.target.value
-                          .split("|")
-                          .map((url) => url.trim()),
-                      })
-                    }
-                  />
-                ) : (
-                  <input
-                    type={
-                      field === "price" ||
-                      field === "rating" ||
-                      field === "stock" ||
-                      field === "discountPercentage"
-                        ? "number"
-                        : "text"
-                    }
-                    value={(newProduct as any)[field]}
-                    onChange={(e) =>
-                      setNewProduct({
-                        ...newProduct,
-                        [field]:
-                          field === "price" ||
-                          field === "rating" ||
-                          field === "stock" ||
-                          field === "discountPercentage"
-                            ? Number(e.target.value)
-                            : e.target.value,
-                      })
-                    }
-                  />
-                )}
-              </div>
-            ))}
-
-            <button onClick={handleAddProduct}>Thêm sản phẩm</button>
+            <input placeholder="Tên sản phẩm" />
+            <input type="number" placeholder="Giá" />
+            <textarea placeholder="URL ảnh (phân cách bằng dấu ;)" />
+            <textarea placeholder="Mô tả" />
+            <input placeholder="Category ID" />
+            <button>Thêm</button>
           </div>
         )}
 
         {activeTab === "delete" && (
-          <div>
-            <h2>🗑️ Danh sách sản phẩm</h2>
+          <>
+            <h2>🗑️ Danh sách Sản phẩm</h2>
             <table className="admin-table">
               <thead>
                 <tr>
                   <th>ID</th>
-                  <th>Ảnh</th>
-                  <th>Tiêu đề</th>
-                  <th>Thương hiệu</th>
+                  <th>Tên</th>
                   <th>Giá</th>
-                  <th>Rating</th>
-                  <th>Kho</th>
                   <th>Xóa</th>
                 </tr>
               </thead>
               <tbody>
-                {products.map((p) => (
-                  <tr key={p.id}>
-                    <td>{p.id}</td>
-                    <td>
-                      <img
-                        src={p.images[0]}
-                        alt="img"
-                        style={{ width: "50px" }}
-                      />
-                    </td>
-                    <td>{p.title}</td>
-                    <td>{p.brand}</td>
-                    <td>{p.price}</td>
-                    <td>{p.rating}</td>
-                    <td>{p.stock}</td>
-                    <td>
-                      <button
-                        className="action-button delete-btn"
-                        onClick={() => handleDeleteProduct(p.id)}
-                      >
-                        ❌ Xóa
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                {/* Hiển thị sản phẩm nếu có */}
               </tbody>
             </table>
-          </div>
+          </>
         )}
       </div>
     </div>
   );
 };
 
-export default Ad;
+export default AdminPage;
