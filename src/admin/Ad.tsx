@@ -2,6 +2,11 @@ import React, { useEffect, useState } from "react";
 import "./css.css";
 import instance from "../axios";
 
+interface Category {
+  id: number;
+  name: string;
+}
+
 interface Order {
   id: number;
   fullname: string;
@@ -15,14 +20,37 @@ interface Order {
   trackingNumber?: string;
 }
 
+
+interface Product {
+  name: string;
+  thumbnail: string;
+  price: number;
+  description: string;
+  imageUrls: string;
+  category_id: number;
+}
 const AdminPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"orders" | "add" | "delete">("orders");
   const [orders, setOrders] = useState<Order[]>([]);
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const [selectedStatus, setSelectedStatus] = useState<string>("");
+  
+  // State để lưu danh sách categories
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<number | string>("");
+
+   const [newProduct, setNewProduct] = useState<Product>({
+    name: "",
+    thumbnail: "",
+    price: 0,
+    description: "",
+    imageUrls: "",
+    category_id: 0,
+  });
 
   useEffect(() => {
     fetchOrders();
+    fetchCategories(); // Gọi API để lấy danh sách categories
   }, []);
 
   const fetchOrders = async () => {
@@ -35,6 +63,15 @@ const AdminPage: React.FC = () => {
     }
   };
 
+  const fetchCategories = async () => {
+    try {
+      const { data } = await instance.get<Category[]>("/api/v1/categories/getAll");
+      setCategories(data); // Cập nhật danh sách categories
+    } catch (error) {
+      console.error("Lỗi khi lấy danh sách categories:", error);
+    }
+  };
+
   const handleCompleteOrder = async (id: number) => {
     try {
       await instance.patch(`/api/v1/orders/${id}/status`, { status: "delivered" });
@@ -43,6 +80,12 @@ const AdminPage: React.FC = () => {
       console.error("Lỗi khi cập nhật trạng thái đơn hàng:", error);
     }
   };
+
+   const handleCategoryChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedCategory(event.target.value); // Cập nhật category khi người dùng chọn
+    setNewProduct({ ...newProduct, category_id: parseInt(event.target.value) });
+  }; 
+
 
   const handleDeleteOrder = async (id: number) => {
     try {
@@ -78,6 +121,42 @@ const AdminPage: React.FC = () => {
         return status;
     }
   };
+const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = event.target;
+    setNewProduct({ ...newProduct, [name]: value });
+  };
+  
+const handleAddProduct = async () => {
+  if (!newProduct.imageUrls.trim()) {
+    alert("Vui lòng nhập ít nhất một URL ảnh.");
+    return;
+  }
+
+  try {
+    const productData = {
+      name: newProduct.name,
+      thumbnail: newProduct.thumbnail,
+      price: newProduct.price,
+      description: newProduct.description,
+      imageUrls: newProduct.imageUrls.trim(),  // Đảm bảo không có khoảng trắng thừa
+      category_id: newProduct.category_id,
+    };
+    console.log("Sending product data:", productData);  // Kiểm tra dữ liệu gửi đi
+    await instance.post("/api/v1/products", productData);
+    alert("Sản phẩm đã được thêm thành công!");
+    // Reset form sau khi thêm sản phẩm
+    setNewProduct({
+      name: "",
+      thumbnail: "",
+      price: 0,
+      description: "",
+      imageUrls: "",
+      category_id: 0,
+    });
+  } catch (error) {
+    console.error("Lỗi khi thêm sản phẩm:", error);
+  }
+};
 
   return (
     <div className="admin-wrapper">
@@ -153,12 +232,49 @@ const AdminPage: React.FC = () => {
         {activeTab === "add" && (
           <div className="form-add">
             <h2>➕ Thêm sản phẩm</h2>
-            <input placeholder="Tên sản phẩm" />
-            <input type="number" placeholder="Giá" />
-            <textarea placeholder="URL ảnh (phân cách bằng dấu ;)" />
-            <textarea placeholder="Mô tả" />
-            <input placeholder="Category ID" />
-            <button>Thêm</button>
+            <input
+              name="name"
+              value={newProduct.name}
+              onChange={handleInputChange}
+              placeholder="Tên sản phẩm"
+            />
+            <input
+              name="price"
+              type="number"
+              value={newProduct.price}
+              onChange={handleInputChange}
+              placeholder="Giá"
+            />
+            <textarea
+              name="thumbnail"
+              value={newProduct.thumbnail}
+              onChange={handleInputChange}
+              placeholder="URL hình thu nhỏ"
+            />
+            <textarea
+              name="imageUrls"
+              value={newProduct.imageUrls}
+              onChange={handleInputChange}
+              placeholder="URL ảnh (phân cách bằng dấu ;) "
+            />
+            <textarea
+              name="description"
+              value={newProduct.description}
+              onChange={handleInputChange}
+              placeholder="Mô tả sản phẩm"
+            />
+
+            {/* Dropdown cho Category */}
+            <select value={selectedCategory} onChange={handleCategoryChange}>
+              <option value="">Chọn danh mục</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+
+            <button onClick={handleAddProduct}>Thêm sản phẩm</button>
           </div>
         )}
 
