@@ -64,18 +64,18 @@ function Login() {
       localStorage.setItem("date_of_birth", user.date_of_birth);  // Lưu date_of_birth
 
       alert("Đăng nhập thành công!");
-      const phoneNumber = localStorage.getItem("phone_number");
-const fullName = localStorage.getItem("full_name");
-const address = localStorage.getItem("address");
-const dateOfBirth = localStorage.getItem("date_of_birth");
+//       const phoneNumber = localStorage.getItem("phone_number");
+// const fullName = localStorage.getItem("full_name");
+// const address = localStorage.getItem("address");
+// const dateOfBirth = localStorage.getItem("date_of_birth");
 
-console.log("Thông tin người dùng:");
+// console.log("Thông tin người dùng:");
 
-console.log("Phone Number:", phoneNumber);
-console.log("Full Name:", fullName);
-console.log("Address:", address);
-console.log("Date of Birth:", dateOfBirth);
-console.log("Role ID:", roleId);
+// console.log("Phone Number:", phoneNumber);
+// console.log("Full Name:", fullName);
+// console.log("Address:", address);
+// console.log("Date of Birth:", dateOfBirth);
+// console.log("Role ID:", roleId);
 
       // Điều hướng theo role
       if (roleId === 1) {
