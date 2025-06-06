@@ -17,7 +17,7 @@ function App() {
   const [products, setProducts] = useState<any[]>([]);
   const [page, setPage] = useState<number>(0);
   const [totalPages, setTotalPages] = useState<number>(0);
-  const limit = 20;
+  const limit = 20; // Số lượng sản phẩm trên mỗi trang
 
   useEffect(() => {
     async function fetchApi() {
