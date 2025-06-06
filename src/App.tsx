@@ -8,6 +8,7 @@ import ProductDetail from "./components/ShopPage/ProductDetail"; // Import Produ
 import Signup from "./Signup/Signup";
 import Header from "./components/Header/Header";
 import instance from "./axios";
+import AdminPage from "./admin/Ad";
 
 function App() {
   const [products, setProducts] = useState<any[]>([]);
@@ -52,6 +53,7 @@ function App() {
         <Route path="/product-detail/:id" element={<ProductDetail />} />  {/* Đảm bảo sử dụng path parameter */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/AdminPage" element={<AdminPage/>} />
       </Routes>
     </>
   );

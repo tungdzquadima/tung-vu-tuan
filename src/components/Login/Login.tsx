@@ -79,7 +79,7 @@ function Login() {
 
       // Điều hướng theo role
       if (roleId === 1) {
-        navigate("/admin");
+        navigate("/AdminPage");
       } else if (roleId === 2) {
         navigate("/products");
       } else {
