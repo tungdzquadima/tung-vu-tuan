@@ -1,87 +1,3 @@
-// import React, { useState } from "react";
-// import instance from "../../axios"; // Giả sử bạn đã có instance
-// import "./css.css";
-// import { useNavigate } from "react-router-dom";
-
-// function Login() {
-//   const navigate = useNavigate();
-//   const [formData, setFormData] = useState({
-//     username: "",
-//     password: "",
-//   });
-
-//   const handleChange = (e: any) => {
-//     const { name, value } = e.target;
-//     setFormData((prev) => ({
-//       ...prev,
-//       [name]: value,
-//     }));
-//   };
-
-//   const handleSubmit = async (e: any) => {
-//     e.preventDefault();
-
-//     try {
-//       // Kiểm tra nếu username và password đúng
-//       const res = await instance.get(
-//         `/users?username=${formData.username}&password=${formData.password}`
-//       );
-
-//       if (res.data.length === 0) {
-//         alert("Tên đăng nhập hoặc mật khẩu không đúng!");
-//         return;
-//       }
-
-//       console.log("Đăng nhập thành công:", res.data);
-//       alert("Đăng nhập thành công!");
-
-//       if (formData.username === "admin" && formData.password === "abc123") {
-//         navigate("/admin"); // Chuyển hướng đến trang admin
-//         return;
-//       }
-//       localStorage.setItem("isLoggedIn", "true"); // đoạn này là lưu đăng nhập
-//       localStorage.setItem("fullname", res.data[0].fullname);
-//       localStorage.setItem("username", res.data[0].username);
-
-//       // Sau khi đăng nhập thành công, có thể chuyển trang hoặc lưu thông tin người dùng
-//       navigate("/products");
-//       window.location.reload();
-//     } catch (error) {
-//       console.error("Lỗi khi đăng nhập:", error);
-//       alert("Đăng nhập thất bại.");
-//     }
-//   };
-
-//   return (
-//     <div className="hcn">
-//       <h1>Nhập Thông Tin Đăng Nhập</h1>
-//       <form onSubmit={handleSubmit}>
-//         <input
-//           type="text"
-//           name="username"
-//           placeholder="Tên đăng nhập"
-//           value={formData.username}
-//           onChange={handleChange}
-//           required
-//         />
-//         <input
-//           type="password"
-//           name="password"
-//           placeholder="Mật khẩu"
-//           value={formData.password}
-//           onChange={handleChange}
-//           required
-//         />
-//         <button type="submit">Đăng nhập</button>
-//       </form>
-//     </div>
-//   );
-// }
-
-// export default Login;
-
-// chatgpt
-
 import React, { useState } from "react";
 import instance from "../../axios"; // axios instance đã config baseURL
 import "./css.css";
@@ -117,22 +33,49 @@ function Login() {
 
       // Giải mã token để lấy role_id và các thông tin khác
       const decoded: any = jwtDecode(token);
-      console.log(decoded);
-      
+      console.log("Decoded token:", decoded); // In ra thông tin đã giải mã để kiểm tra
+
       const roleId = decoded.role_id || decoded.roleId;
       console.log(roleId);
-      
+
       if (!roleId) {
         alert("Không xác định được quyền truy cập.");
         return;
       }
 
-      // Lưu token và thông tin user cơ bản
+      // Lưu token và trạng thái đăng nhập vào localStorage
       localStorage.setItem("token", token);
-      localStorage.setItem("phone_number", formData.phone_number);
+      localStorage.setItem("isLoggedIn", "true"); // Đánh dấu trạng thái đăng nhập
+
+      // Gọi API để lấy thông tin người dùng
+      const userInfoRes = await instance.get("/api/v1/users/me", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const user = userInfoRes.data; // Giả sử API trả về thông tin người dùng
+
+      // Lưu các thông tin người dùng vào localStorage
+      localStorage.setItem("phone_number", user.phone_number);
       localStorage.setItem("role_id", roleId);
+      localStorage.setItem("full_name", user.fullname);  // Lưu fullName
+      localStorage.setItem("address", user.address);  // Lưu address
+      localStorage.setItem("date_of_birth", user.date_of_birth);  // Lưu date_of_birth
 
       alert("Đăng nhập thành công!");
+      const phoneNumber = localStorage.getItem("phone_number");
+const fullName = localStorage.getItem("full_name");
+const address = localStorage.getItem("address");
+const dateOfBirth = localStorage.getItem("date_of_birth");
+
+console.log("Thông tin người dùng:");
+
+console.log("Phone Number:", phoneNumber);
+console.log("Full Name:", fullName);
+console.log("Address:", address);
+console.log("Date of Birth:", dateOfBirth);
+console.log("Role ID:", roleId);
 
       // Điều hướng theo role
       if (roleId === 1) {
