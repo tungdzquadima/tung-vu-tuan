@@ -1,23 +1,19 @@
-
-
 import { useEffect, useState } from "react";
-import ShopPage from "./components/ShopPage/ShopPage";
-import instance from "./axios";
 import { Route, Routes } from "react-router-dom";
+import ShopPage from "./components/ShopPage/ShopPage";
 import HomePage from "./components/HomePage/HomePage";
 import AboutPage from "./components/About/AboutPage";
 import Login from "./components/Login/Login";
-import ProductDetail from "./components/ShopPage/ProductDetail";
+import ProductDetail from "./components/ShopPage/ProductDetail"; // Import ProductDetail component
 import Signup from "./Signup/Signup";
-import Ad from "./admin/Ad";
 import Header from "./components/Header/Header";
-import AdminPage from "./admin/Ad";
+import instance from "./axios";
 
 function App() {
   const [products, setProducts] = useState<any[]>([]);
   const [page, setPage] = useState<number>(0);
   const [totalPages, setTotalPages] = useState<number>(0);
-  const limit = 20; // Số lượng sản phẩm trên mỗi trang
+  const limit = 20;
 
   useEffect(() => {
     async function fetchApi() {
@@ -27,8 +23,6 @@ function App() {
         });
 
         if (data.products && Array.isArray(data.products)) {
-          console.log("Data sản phẩm:", data.products);
-          
           setProducts(data.products);
           setTotalPages(data.totalPages || 0);
         } else {
@@ -40,9 +34,8 @@ function App() {
       }
     }
     fetchApi();
-  }, [page]); // gọi lại khi page thay đổi
+  }, [page]);
 
-  // Hàm xử lý chuyển trang
   const handlePageChange = (newPage: number) => {
     if (newPage >= 0 && newPage < totalPages) {
       setPage(newPage);
@@ -51,20 +44,15 @@ function App() {
 
   return (
     <>
-    <Header/>
-      {/* Các phần khác */}
+      <Header />
       <Routes>
-             <Route path="/" element={<HomePage />} />
-             <Route path="/about" element={<AboutPage />} />
-             <Route path="/products" element={<ShopPage data={products}page={page}
-        totalPages={totalPages}
-        onPageChange={handlePageChange} />} />
-             <Route path="/login" element={<Login />} />
-             <Route path="/product-detail/:id" element={<ProductDetail />} /> 
-             <Route path="/signup" element={<Signup />} />
-              <Route path="/admin" element={<AdminPage />} />
-           </Routes>
-      
+        <Route path="/" element={<HomePage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/products" element={<ShopPage data={products} page={page} totalPages={totalPages} onPageChange={handlePageChange} />} />
+        <Route path="/product-detail/:id" element={<ProductDetail />} />  {/* Đảm bảo sử dụng path parameter */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+      </Routes>
     </>
   );
 }

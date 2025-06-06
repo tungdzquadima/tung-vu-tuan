@@ -1,189 +1,258 @@
-import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom"; // Sử dụng useNavigate thay vì useHistory
-import instance from "../../axios"; // Import axios instance
-import "./Shoppage.css"; // Cập nhật tên file CSS nếu cần
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import instance from "../../axios"; // Giả sử bạn sử dụng axios để gọi API
+
+interface Category {
+  id: number;
+  name: string;
+}
+
+interface Brand {
+  id: number;
+  name: string;
+}
 
 interface Product {
   id: number;
   name: string;
-  description: string;
   price: number;
+  description: string;
   thumbnail: string;
-  imageUrls: string;
+  category_id: Category;  // Sử dụng category_id
+  brand_id: Brand;  // Sử dụng brand_id
 }
 
-const ProductDetail = () => {
-  const { productId } = useParams<{ productId: string }>();
+
+function ProductDetail() {
+  const { id } = useParams<{ id: string }>(); // Lấy id từ URL
   const [product, setProduct] = useState<Product | null>(null);
-  const [order, setOrder] = useState({
+  const [quantity, setQuantity] = useState<number>(1); // Số lượng mua
+  const [showOrderForm, setShowOrderForm] = useState<boolean>(false); // Hiển thị form Order
+  const [orderDetailsForm, setOrderDetailsForm] = useState<boolean>(false); // Hiển thị form OrderDetail
+  const [userInfo, setUserInfo] = useState({
     fullname: "",
     email: "",
     phone_number: "",
     address: "",
     note: "",
-    total_money: 0,
-    shipping_method: "GHN",
+    shipping_method: "GHN", // Giả sử chọn GHN
     shipping_address: "",
     tracking_number: "",
-    payment_method: "tiền mặt",
+    payment_method: "tiền mặt", // Giả sử chọn tiền mặt
   });
 
-  const navigate = useNavigate(); // Sử dụng useNavigate()
+  const [orderDetail, setOrderDetail] = useState({
+    order_id: 0, // Sẽ được cập nhật sau khi tạo đơn hàng
+    product_id: 0,
+    price: 0,
+    number_of_products: 0,
+    total_money: 0,
+    color: "#ff00ff", // Màu sắc mặc định
+  });
 
-  // Fetch product data
-  const fetchProduct = async () => {
-    try {
-      const response = await instance.get(`/api/v1/products/${productId}`);
-      setProduct(response.data);
-    } catch (error) {
-      console.error("Error fetching product:", error);
-    }
-  };
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setOrder((prevOrder) => ({
-      ...prevOrder,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      if (product) {
-        // Calculate total price (assuming only one product)
-        const totalMoney = product.price; // Can be extended for multiple items
-
-        // Prepare order data
-        const orderData = {
-          ...order,
-          total_money: totalMoney,
-          user_id: 3, // Assuming user_id=3, you can replace it with actual logged-in user ID
-        };
-
-        // POST request to create order
-        const response = await instance.post("http://localhost:8088/api/v1/orders", orderData);
-        console.log("Order placed successfully:", response.data);
-
-        // Redirect to the success page after order is placed
-        navigate("/success"); // Dùng navigate thay vì push
-      }
-    } catch (error) {
-      console.error("Error placing order:", error);
-    }
-  };
-
+  // Fetch product details when the component mounts
   useEffect(() => {
-    if (productId) {
+    async function fetchProduct() {
+      try {
+        const { data } = await instance.get(`/api/v1/products/${id}`);
+        setProduct(data); // Lưu thông tin sản phẩm vào state
+      } catch (error) {
+        console.log("Error fetching product details:", error);
+      }
+    }
+
+    if (id) {
       fetchProduct();
     }
-  }, [productId]);
+  }, [id]);
 
-  if (!product) return <p>Loading...</p>;
+  // Handle submit for order (Create order)
+  const handleOrderSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // 1. Gửi yêu cầu tạo đơn hàng
+    try {
+      // Kiểm tra xem sản phẩm có tồn tại hay không
+      if (!product) {
+        alert("Sản phẩm không hợp lệ");
+        return;
+      }
+
+      const orderResponse = await instance.post("/api/v1/orders", {
+        user_id: 6, // Bạn có thể thay đổi user_id theo yêu cầu
+        fullname: userInfo.fullname,
+        email: userInfo.email,
+        phone_number: userInfo.phone_number,
+        address: userInfo.address,
+        note: userInfo.note,
+        total_money: product?.price * quantity,  // Tổng giá trị đơn hàng
+        shipping_method: userInfo.shipping_method,
+        shipping_address: userInfo.shipping_address,
+        tracking_number: userInfo.tracking_number,
+        payment_method: userInfo.payment_method,
+      });
+
+      const orderId = orderResponse.data.id;  // Lấy order_id từ phản hồi của API tạo đơn hàng
+
+      // 2. Hiển thị form OrderDetail sau khi đơn hàng được tạo
+      setOrderDetailsForm(true);  // Set orderDetailsForm thành true khi tạo đơn hàng thành công
+
+      // Cập nhật orderDetail với các thông tin của sản phẩm và đơn hàng
+      setOrderDetail({
+        ...orderDetail,
+        order_id: orderId, 
+        product_id: product.id,
+        price: product.price * quantity,
+        number_of_products: quantity,
+        total_money: product.price * quantity,
+      });
+
+    } catch (error) {
+      console.error("Lỗi khi tạo đơn hàng:", error);
+      alert("Đã xảy ra lỗi khi đặt hàng. Vui lòng thử lại.");
+    }
+  };
+
+  // Handle submit for order detail (Create order detail)
+  const handleOrderDetailSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Gửi yêu cầu tạo chi tiết đơn hàng
+    console.log("Submitting order detail:", orderDetail);
+    
+    try {
+      const response = await instance.post("/api/v1/order_details", {
+        order_id: orderDetail.order_id, // order_id là id của đơn hàng đã tạo
+        product_id: orderDetail.product_id,
+        price: orderDetail.price,
+        number_of_products: orderDetail.number_of_products,
+        total_money: orderDetail.total_money,
+        color: orderDetail.color,
+      });
+
+      alert("Đặt hàng thành công!");
+    } catch (error) {
+      console.error("Lỗi khi tạo chi tiết đơn hàng:", error);
+      alert("Đã xảy ra lỗi khi tạo chi tiết đơn hàng.");
+    }
+  };
+
+  // Nếu chưa có sản phẩm, hiển thị thông báo tải dữ liệu
+  if (!product) {
+    return <div>Loading product details...</div>;
+  }
+   // Đoạn code này đã sửa phần số lượng khi người dùng thay đổi
+  const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newQuantity = parseInt(e.target.value);
+    if (newQuantity >= 1) {
+      setQuantity(newQuantity); // Cập nhật số lượng
+      setOrderDetail((prevState) => ({
+        ...prevState,
+        number_of_products: newQuantity,  // Cập nhật số lượng trong orderDetail
+        total_money: product?.price * newQuantity,  // Cập nhật tổng tiền dựa trên số lượng
+      }));
+    }
+  };
 
   return (
-    <div className="product-detail-page">
+    <div className="product-detail">
       <div className="product-info">
-        <h1>{product.name}</h1>
-        <img src={product.thumbnail || "/default-image.png"} alt={product.name} />
+        <img src={product.thumbnail} alt={product.name} />
+        <h2>{product.name}</h2>
         <p>{product.description}</p>
-        <p className="price">${product.price.toLocaleString()}</p>
+        <p>Price: ${product.price}</p>
+        <p>mô tả: {product.description}</p>
+        <p>Category: {product.category_id?.name || 'Loading...'}</p>
+        <p>Brand: {product.brand_id?.name || 'Loading...'}</p>
       </div>
 
-      <div className="order-form">
-        <h2>Nhập thông tin để đặt hàng</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="fullname">Họ tên</label>
+      {/* Form Order */}
+      {showOrderForm && (
+        <form onSubmit={handleOrderSubmit} className="order-form">
+          <h3>Enter Your Order Information</h3>
+          <div>
+            <label htmlFor="fullname">Full Name:</label>
             <input
               type="text"
               id="fullname"
-              name="fullname"
-              value={order.fullname}
-              onChange={handleChange}
+              value={userInfo.fullname}
+              onChange={(e) => setUserInfo({ ...userInfo, fullname: e.target.value })}
               required
             />
           </div>
-
-          <div className="form-group">
-            <label htmlFor="email">Email</label>
+          <div>
+            <label htmlFor="email">Email:</label>
             <input
               type="email"
               id="email"
-              name="email"
-              value={order.email}
-              onChange={handleChange}
+              value={userInfo.email}
+              onChange={(e) => setUserInfo({ ...userInfo, email: e.target.value })}
               required
             />
           </div>
-
-          <div className="form-group">
-            <label htmlFor="phone_number">Số điện thoại</label>
+          <div>
+            <label htmlFor="phone_number">Phone Number:</label>
             <input
               type="text"
               id="phone_number"
-              name="phone_number"
-              value={order.phone_number}
-              onChange={handleChange}
+              value={userInfo.phone_number}
+              onChange={(e) => setUserInfo({ ...userInfo, phone_number: e.target.value })}
               required
             />
           </div>
-
-          <div className="form-group">
-            <label htmlFor="address">Địa chỉ</label>
+          <div>
+            <label htmlFor="address">Shipping Address:</label>
             <input
               type="text"
               id="address"
-              name="address"
-              value={order.address}
-              onChange={handleChange}
+              value={userInfo.address}
+              onChange={(e) => setUserInfo({ ...userInfo, address: e.target.value })}
               required
             />
           </div>
-
-          <div className="form-group">
-            <label htmlFor="note">Ghi chú</label>
+          <div>
+            <label htmlFor="note">Note:</label>
             <textarea
               id="note"
-              name="note"
-              value={order.note}
-              onChange={handleChange}
+              value={userInfo.note}
+              onChange={(e) => setUserInfo({ ...userInfo, note: e.target.value })}
             />
           </div>
-
-          <div className="form-group">
-            <label htmlFor="shipping_address">Địa chỉ giao hàng</label>
-            <input
-              type="text"
-              id="shipping_address"
-              name="shipping_address"
-              value={order.shipping_address}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="payment_method">Phương thức thanh toán</label>
-            <select
-              id="payment_method"
-              name="payment_method"
-              value={order.payment_method}
-              onChange={handleChange}
-            >
-              <option value="tiền mặt">Tiền mặt</option>
-              <option value="online">Thanh toán trực tuyến</option>
-            </select>
-          </div>
-
-          <button type="submit" className="order-button">Đặt hàng</button>
+          <button type="submit">Create Order</button>
         </form>
-      </div>
+      )}
+
+      {/* Form Order Detail */}
+      {orderDetailsForm && (
+        <form onSubmit={handleOrderDetailSubmit} className="order-detail-form">
+          <h3>Enter Order Detail Information</h3>
+          <div>
+            <label htmlFor="quantity">Quantity:</label>
+            <input
+              type="number"
+              id="quantity"
+              min="1"
+              value={quantity}
+              onChange={handleQuantityChange}
+            />
+          </div>
+          <div>
+            <label htmlFor="color">Product Color:</label>
+            <input
+              type="color"
+              id="color"
+              value={orderDetail.color}
+              onChange={(e) => setOrderDetail({ ...orderDetail, color: e.target.value })}
+            />
+          </div>
+          <button type="submit">Submit Order Detail</button>
+        </form>
+      )}
+
+      {/* Button to show Order Form */}
+      <button onClick={() => setShowOrderForm(true)}>Buy Now</button>
     </div>
   );
-};
+}
 
 export default ProductDetail;
