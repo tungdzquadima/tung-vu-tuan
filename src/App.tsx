@@ -14,46 +14,75 @@ function App() {
   const [products, setProducts] = useState<any[]>([]);
   const [page, setPage] = useState<number>(0);
   const [totalPages, setTotalPages] = useState<number>(0);
+  const [categories, setCategories] = useState<any[]>([]); // Để lưu trữ danh mục
+  const [selectedCategory, setSelectedCategory] = useState<number>(4); // Mặc định là "Máy tính"
   const limit = 20;
 
+  // Fetch danh mục sản phẩm
   useEffect(() => {
-    async function fetchApi() {
+    async function fetchCategories() {
       try {
-        const { data } = await instance.get("/api/v1/products", {
+        const { data } = await instance.get("/api/v1/categories/getAll");
+        if (data && Array.isArray(data)) {
+          setCategories(data);
+          console.log("Danh mục đã được lấy:", data);
+        } else {
+          setCategories([]);
+        }
+      } catch (error) {
+        console.log("Lỗi không lấy được danh mục:", error);
+      }
+    }
+
+    fetchCategories();
+  }, []);
+
+  // Fetch sản phẩm theo category và phân trang
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        const { data } = await instance.get("/api/v1/products/category/" + selectedCategory, {
           params: { page, limit },
         });
 
         if (data.products && Array.isArray(data.products)) {
           setProducts(data.products);
-          setTotalPages(data.totalPages || 0);
+          setTotalPages(data.totalPages || 0);  // Sử dụng totalPages để phân trang
         } else {
-          setProducts([]);
-          setTotalPages(0);
+          setProducts([]); // Nếu không có sản phẩm, set mảng rỗng
+          setTotalPages(0); // Tổng số trang = 0 nếu không có sản phẩm
         }
       } catch (error) {
         console.log("Lỗi không lấy được sản phẩm:", error);
       }
     }
-    fetchApi();
-  }, [page]);
+    fetchProducts();
+  }, [page, selectedCategory]); // Cập nhật khi page hoặc category thay đổi
 
+  // Hàm thay đổi danh mục
+  const handleCategoryChange = (categoryId: number) => {
+    setSelectedCategory(categoryId);
+    setPage(0); // Khi thay đổi category, reset lại trang về 0
+  };
+
+  // Hàm thay đổi trang
   const handlePageChange = (newPage: number) => {
     if (newPage >= 0 && newPage < totalPages) {
-      setPage(newPage);
+      setPage(newPage);  // Cập nhật trang mới
     }
   };
 
   return (
     <>
-      <Header />
+      <Header categories={categories} onCategoryChange={handleCategoryChange} />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/products" element={<ShopPage data={products} page={page} totalPages={totalPages} onPageChange={handlePageChange} />} />
-        <Route path="/product-detail/:id" element={<ProductDetail />} />  {/* Đảm bảo sử dụng path parameter */}
+        <Route path="/product-detail/:id" element={<ProductDetail />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/AdminPage" element={<AdminPage/>} />
+        <Route path="/AdminPage" element={<AdminPage />} />
       </Routes>
     </>
   );

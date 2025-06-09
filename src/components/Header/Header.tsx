@@ -2,46 +2,51 @@ import { useEffect, useState } from "react";
 import "./Header.css";
 import { Link, useNavigate } from "react-router-dom";
 
-function Header() {
+function Header({ categories, onCategoryChange }: { categories: any[], onCategoryChange: (categoryId: number) => void }) {
   const navigate = useNavigate();
-
-
-const phoneNumber = localStorage.getItem("phone_number");
-const fullName = localStorage.getItem("full_name");
-const address = localStorage.getItem("address");
-const dateOfBirth = localStorage.getItem("date_of_birth");
-const roleId = localStorage.getItem("role_id");
-
-// console.log("Thông tin người dùng: dang o header");
-// console.log("Phone Number:", phoneNumber);
-// console.log("Full Name:", fullName);
-// console.log("Address:", address);
-// console.log("Date of Birth:", dateOfBirth);
-// console.log("Role ID:", roleId);
-
-
-  // Lấy thông tin full name và kiểm tra trạng thái đăng nhập
+  console.log("Header component rendered with categories:", categories);
   
+
+  const phoneNumber = localStorage.getItem("phone_number");
+  const fullName = localStorage.getItem("full_name");
+  const address = localStorage.getItem("address");
+  const dateOfBirth = localStorage.getItem("date_of_birth");
+  const roleId = localStorage.getItem("role_id");
+
   // Đăng xuất và xoá thông tin khỏi localStorage
   const handleLogout = () => {
-    localStorage.clear(); 
+    localStorage.clear();
     navigate("/products"); // Điều hướng đến trang sản phẩm hoặc trang login
   };
+
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  const handleMouseEnter = () => setIsDropdownOpen(true);
+  const handleMouseLeave = () => setIsDropdownOpen(false);
 
   return (
     <header>
       <nav className="main-nav">
         <ul className="nav-left">
-          <li>
-            <Link to="/products">HOME</Link>
+  {/* Danh mục dropdown */}
+  <li
+    className="category-dropdown"
+    onMouseEnter={handleMouseEnter}
+    onMouseLeave={handleMouseLeave}
+  >
+    <button className="category-button">Danh mục</button>
+    {isDropdownOpen && (
+      <ul className="dropdown-menu">
+        {categories.map((category) => (
+          <li key={category.id} onClick={() => onCategoryChange(category.id)}>
+            {category.name}
           </li>
-          <li>
-            <Link to="/about">ABOUT</Link>
-          </li>
-          <li>
-            <Link to="/products">SHOP</Link>
-          </li>
-        </ul>
+        ))}
+      </ul>
+    )}
+  </li>
+</ul>
+
 
         {/* Thanh tìm kiếm */}
         <div className="search-container">
