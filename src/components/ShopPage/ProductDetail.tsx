@@ -30,6 +30,7 @@ function ProductDetail() {
   const [showOrderForm, setShowOrderForm] = useState<boolean>(false); // Hiển thị form Order
   const [orderDetailsForm, setOrderDetailsForm] = useState<boolean>(false); // Hiển thị form OrderDetail
   const [userInfo, setUserInfo] = useState({
+    
     fullname: "",
     email: "",
     phone_number: "",
@@ -78,8 +79,15 @@ function ProductDetail() {
         return;
       }
 
+      // Lấy user_id từ localStorage
+      const userId = localStorage.getItem("user_id");
+      if (!userId) {
+        alert("Vui lòng đăng nhập!");
+        return;
+      }
+
       const orderResponse = await instance.post("/api/v1/orders", {
-        user_id: 6, // Bạn có thể thay đổi user_id theo yêu cầu
+        user_id: userId, // Lấy user_id từ localStorage
         fullname: userInfo.fullname,
         email: userInfo.email,
         phone_number: userInfo.phone_number,
@@ -141,7 +149,8 @@ function ProductDetail() {
   if (!product) {
     return <div>Loading product details...</div>;
   }
-   // Đoạn code này đã sửa phần số lượng khi người dùng thay đổi
+
+  // Đoạn code này đã sửa phần số lượng khi người dùng thay đổi
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newQuantity = parseInt(e.target.value);
     if (newQuantity >= 1) {

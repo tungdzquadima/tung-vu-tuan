@@ -69,6 +69,7 @@ function Login() {
       // Lưu các thông tin người dùng vào localStorage
       localStorage.setItem("phone_number", user.phone_number);
       localStorage.setItem("role_id", roleId);
+      localStorage.setItem("user_id", user.id);  // Lưu user_id
       localStorage.setItem("full_name", user.fullname);  // Lưu fullName
       localStorage.setItem("address", user.address);  // Lưu address
       localStorage.setItem("date_of_birth", dateOfBirthFormatted);  // Lưu date_of_birth sau khi chuyển múi giờ
@@ -78,6 +79,7 @@ function Login() {
       const fullName = localStorage.getItem("full_name");
       const address = localStorage.getItem("address");
       const dateOfBirth = localStorage.getItem("date_of_birth");
+      const userId = localStorage.getItem("user_id");
 
       console.log("Thông tin người dùng:");
 
@@ -86,6 +88,8 @@ function Login() {
       console.log("Address:", address);
       console.log("Date of Birth:", dateOfBirth);
       console.log("Role ID:", roleId);
+      console.log("User ID:", userId);
+      
 
       // Điều hướng theo role
       if (roleId === 1) {
