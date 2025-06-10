@@ -1,279 +1,154 @@
-.admin-container {
-    padding: 20px;
-    background: linear-gradient(to right, #fceabb, #f8b500);
-    min-height: 100vh;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  }
-  
-  h1 {
-    text-align: center;
-    color: #fff;
-    text-shadow: 2px 2px #000;
-  }
-  
-  .admin-table {
-    width: 100%;
-    border-collapse: collapse;
-    background-color: #fff;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
-    margin-top: 30px;
-  }
-  
-  .admin-table th,
-  .admin-table td {
-    padding: 12px 20px;
-    text-align: center;
-    border-bottom: 1px solid #ddd;
-  }
-  
-  .admin-table th {
-    background-color: #ff9800;
-    color: white;
-    font-size: 16px;
-  }
-  
-  .admin-table tr:nth-child(even) {
-    background-color: #f2f2f2;
-  }
-  
-  .admin-table tr:hover {
-    background-color: #ffe0b2;
-    transform: scale(1.01);
-    transition: all 0.2s ease-in-out;
-  }
-  
-  .action-button {
-    margin: 4px;
-    padding: 8px 12px;
-    border: none;
-    border-radius: 8px;
-    color: white;
-    cursor: pointer;
-    transition: transform 0.2s ease;
-    font-weight: bold;
-  }
-  
-  .action-button:hover {
-    transform: scale(1.05);
-  }
-  
-  .delete-btn {
-    background-color: #e53935;
-  }
-  
-  .delivered-btn {
-    background-color: #4caf50;
-  }
-  
-  .status-tag {
-    padding: 4px 10px;
-    border-radius: 10px;
-    color: white;
-    font-weight: bold;
-  }
-  
-  .status-pending {
-    background-color: #f44336;
-  }
-  
-  .status-delivered {
-    background-color: #4caf50;
-  }
-  
-  /* new */
-  .admin-wrapper {
+/* Toàn bộ bố cục */
+.admin-wrapper {
   display: flex;
+  min-height: 100vh;
+  font-family: "Segoe UI", sans-serif;
+  background-color: #f9fafb;
 }
 
+/* Thanh bên trái */
 .sidebar {
-  width: 200px;
-  background-color: #f1f1f1;
-  padding: 1rem;
+  width: 220px;
+  background-color: #1f2937;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
 }
 
 .sidebar button {
-  width: 100%;
   margin-bottom: 10px;
-  padding: 10px;
-  background-color: #e0e0e0;
+  padding: 12px 15px;
+  font-size: 16px;
+  color: white;
+  background-color: #374151;
   border: none;
+  border-radius: 6px;
   cursor: pointer;
+  text-align: left;
+  transition: background-color 0.3s;
 }
 
 .sidebar button:hover {
-  background-color: #ccc;
+  background-color: #4b5563;
 }
 
+/* Khu vực nội dung bên phải */
 .content {
   flex: 1;
-  padding: 1rem;
-}
-
-.form-add input {
-  display: block;
-  margin-bottom: 10px;
-  width: 300px;
-  padding: 5px;
-}
-.form-add {
-  background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
   padding: 30px;
-  border-radius: 20px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-  animation: fadeIn 1s ease-in-out;
-  color: #2c3e50;
-  font-weight: bold;
+  overflow-x: auto;
 }
 
-.form-add h2 {
-  font-size: 26px;
-  color: #d35400;
+.content h2 {
   margin-bottom: 20px;
-  text-shadow: 1px 1px 2px #fff;
+  font-size: 24px;
+  color: #111827;
 }
 
-.form-add div {
-  margin-bottom: 15px;
-  display: flex;
-  flex-direction: column;
+/* Bảng */
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
-.form-add label {
-  font-size: 16px;
-  margin-bottom: 5px;
-  color: #34495e;
+.admin-table th,
+.admin-table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
 }
 
-.form-add input {
-  padding: 10px;
-  border: 2px solid #f39c12;
-  border-radius: 10px;
-  outline: none;
-  transition: all 0.3s ease;
-  font-size: 14px;
+.admin-table th {
+  background-color: #f3f4f6;
+  font-weight: 600;
+  color: #374151;
 }
 
-.form-add input:focus {
-  border-color: #e74c3c;
-  background-color: #fff8e1;
-  transform: scale(1.02);
+.admin-table tr:hover {
+  background-color: #f9fafb;
 }
 
-.form-add button {
-  padding: 12px 20px;
-  font-size: 16px;
-  background: linear-gradient(135deg, #00c9ff, #92fe9d);
-  color: white;
+/* Nút hành động */
+button {
+  padding: 8px 12px;
+  margin: 2px;
   border: none;
-  border-radius: 15px;
+  border-radius: 6px;
+  background-color: #3b82f6;
+  color: white;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s;
 }
 
-.form-add button:hover {
-  background: linear-gradient(135deg, #fc466b, #3f5efb);
-  transform: scale(1.05);
+button:hover {
+  background-color: #2563eb;
 }
 
-/* Optional: Animation */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* CSS cho phần lọc trạng thái đơn hàng */
+/* Nút lọc trạng thái */
 .status-filters {
-  display: flex;
-  justify-content: flex-start;
   margin-bottom: 20px;
-  gap: 10px;
 }
 
 .status-filters button {
-  padding: 10px 20px;
-  background-color: #f39c12;
-  border: none;
-  border-radius: 10px;
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.3s ease;
+  background-color: #e5e7eb;
+  color: #1f2937;
+  font-weight: 500;
 }
 
 .status-filters button:hover {
-  background-color: #e67e22;
-  transform: scale(1.05);
+  background-color: #d1d5db;
 }
 
-/* CSS cho các đơn hàng khi bị mờ đi (đã hoàn thành hoặc đã hủy) */
-.admin-table tr {
-  transition: opacity 0.3s ease;
+/* Form thêm sản phẩm */
+.form-add input,
+.form-add textarea,
+.form-add select {
+  display: block;
+  width: 100%;
+  margin-bottom: 15px;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 16px;
+  background-color: white;
+  color: #111827;
+  transition: border-color 0.3s;
 }
 
-.admin-table tr.muted {
-  opacity: 0.5;
+.form-add input:focus,
+.form-add textarea:focus,
+.form-add select:focus {
+  border-color: #3b82f6;
+  outline: none;
 }
 
-/* CSS cho trạng thái */
-.status-tag {
-  display: inline-block;
-  padding: 4px 10px;
-  border-radius: 10px;
-  color: white;
-  font-weight: bold;
-  text-transform: capitalize;
+.form-add button {
+  background-color: #10b981;
 }
 
-.status-pending {
-  background-color: #f44336; /* Đỏ */
+.form-add button:hover {
+  background-color: #059669;
 }
 
-.status-delivered {
-  background-color: #4caf50; /* Xanh lá */
-}
+/* Responsive */
+@media screen and (max-width: 768px) {
+  .admin-wrapper {
+    flex-direction: column;
+  }
 
-.status-shipped {
-  background-color: #ff9800; /* Cam */
-}
+  .sidebar {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-around;
+  }
 
-.status-cancelled {
-  background-color: #e53935; /* Đỏ đậm */
-}
-
-/* Thêm CSS cho hiệu ứng hover của các đơn hàng */
-.admin-table tr:hover {
-  background-color: #ffe0b2;
-  transform: scale(1.01);
-  transition: all 0.2s ease-in-out;
-}
-
-/* CSS cho các nút hành động */
-.action-button {
-  padding: 8px 12px;
-  margin: 4px;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: transform 0.3s ease;
-}
-
-.action-button:hover {
-  transform: scale(1.05);
-}
-
-.delete-btn {
-  background-color: #e53935;
-}
-
-.delivered-btn {
-  background-color: #4caf50;
+  .content {
+    padding: 15px;
+  }
 }

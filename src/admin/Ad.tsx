@@ -7,6 +7,11 @@ interface Category {
   name: string;
 }
 
+interface Brand {
+  id: number;
+  name: string;
+}
+
 interface Order {
   id: number;
   fullname: string;
@@ -20,44 +25,44 @@ interface Order {
   trackingNumber?: string;
 }
 
-
 interface Product {
   name: string;
   thumbnail: string;
   price: number;
   description: string;
-  imageUrls: string;
   category_id: number;
+  brand_id: number;
 }
+
 const AdminPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"orders" | "add" | "delete">("orders");
   const [orders, setOrders] = useState<Order[]>([]);
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const [selectedStatus, setSelectedStatus] = useState<string>("");
-  
-  // State để lưu danh sách categories
   const [categories, setCategories] = useState<Category[]>([]);
+  const [brands, setBrands] = useState<Brand[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<number | string>("");
 
-   const [newProduct, setNewProduct] = useState<Product>({
+  const [newProduct, setNewProduct] = useState<Product>({
     name: "",
     thumbnail: "",
     price: 0,
     description: "",
-    imageUrls: "",
     category_id: 0,
+    brand_id: 0,
   });
 
   useEffect(() => {
     fetchOrders();
-    fetchCategories(); // Gọi API để lấy danh sách categories
+    fetchCategories();
+    fetchBrands();
   }, []);
 
   const fetchOrders = async () => {
     try {
       const { data } = await instance.get<Order[]>("/api/v1/orders");
       setOrders(data);
-      setFilteredOrders(data); // Hiển thị tất cả đơn hàng ban đầu
+      setFilteredOrders(data);
     } catch (error) {
       console.error("Lỗi khi lấy đơn hàng:", error);
     }
@@ -66,31 +71,43 @@ const AdminPage: React.FC = () => {
   const fetchCategories = async () => {
     try {
       const { data } = await instance.get<Category[]>("/api/v1/categories/getAll");
-      setCategories(data); // Cập nhật danh sách categories
+      setCategories(data);
     } catch (error) {
       console.error("Lỗi khi lấy danh sách categories:", error);
+    }
+  };
+
+  const fetchBrands = async () => {
+    try {
+      const { data } = await instance.get<Brand[]>("/api/v1/brands");
+      setBrands(data);
+    } catch (error) {
+      console.error("Lỗi khi lấy danh sách brands:", error);
     }
   };
 
   const handleCompleteOrder = async (id: number) => {
     try {
       await instance.patch(`/api/v1/orders/${id}/status`, { status: "delivered" });
-      fetchOrders(); // Fetch lại tất cả đơn hàng sau khi cập nhật
+      fetchOrders();
     } catch (error) {
       console.error("Lỗi khi cập nhật trạng thái đơn hàng:", error);
     }
   };
 
-   const handleCategoryChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedCategory(event.target.value); // Cập nhật category khi người dùng chọn
+  const handleCategoryChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedCategory(event.target.value);
     setNewProduct({ ...newProduct, category_id: parseInt(event.target.value) });
-  }; 
+  };
 
+  const handleBrandChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setNewProduct({ ...newProduct, brand_id: parseInt(event.target.value) });
+  };
 
   const handleDeleteOrder = async (id: number) => {
     try {
       await instance.patch(`/api/v1/orders/${id}/status`, { status: "cancelled" });
-      fetchOrders(); // Fetch lại tất cả đơn hàng sau khi hủy
+      fetchOrders();
     } catch (error) {
       console.error("Lỗi khi hủy đơn hàng:", error);
     }
@@ -99,82 +116,61 @@ const AdminPage: React.FC = () => {
   const handleStatusFilter = (status: string) => {
     setSelectedStatus(status);
     if (status === "") {
-      setFilteredOrders(orders); // Nếu không có trạng thái lọc, hiển thị tất cả đơn hàng
+      setFilteredOrders(orders);
     } else {
-      setFilteredOrders(orders.filter((order) => order.status === status)); // Lọc theo trạng thái
+      setFilteredOrders(orders.filter((order) => order.status === status));
     }
   };
 
   const translateStatus = (status: string): string => {
     switch (status) {
-      case "pending":
-        return "Chờ xử lý";
-      case "processing":
-        return "Đang xử lý";
-      case "shipped":
-        return "Đã gửi";
-      case "delivered":
-        return "Đã giao";
-      case "cancelled":
-        return "Đã hủy";
-      default:
-        return status;
+      case "pending": return "Chờ xử lý";
+      case "processing": return "Đang xử lý";
+      case "shipped": return "Đã gửi";
+      case "delivered": return "Đã giao";
+      case "cancelled": return "Đã hủy";
+      default: return status;
     }
   };
-const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = event.target;
-    setNewProduct({ ...newProduct, [name]: value });
-  };
-  
-const handleAddProduct = async () => {
-  if (!newProduct.imageUrls.trim()) {
-    alert("Vui lòng nhập ít nhất một URL ảnh.");
-    return;
-  }
 
-  try {
-    const productData = {
-      name: newProduct.name,
-      thumbnail: newProduct.thumbnail,
-      price: newProduct.price,
-      description: newProduct.description,
-      imageUrls: newProduct.imageUrls.trim(),  // Đảm bảo không có khoảng trắng thừa
-      category_id: newProduct.category_id,
-    };
-    console.log("Sending product data:", productData);  // Kiểm tra dữ liệu gửi đi
-    await instance.post("/api/v1/products", productData);
-    alert("Sản phẩm đã được thêm thành công!");
-    // Reset form sau khi thêm sản phẩm
-    setNewProduct({
-      name: "",
-      thumbnail: "",
-      price: 0,
-      description: "",
-      imageUrls: "",
-      category_id: 0,
-    });
-  } catch (error) {
-    console.error("Lỗi khi thêm sản phẩm:", error);
-  }
-};
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = event.target;
+    setNewProduct({ ...newProduct, [name]: name === "price" ? Number(value) : value });
+  };
+
+  const handleAddProduct = async () => {
+    try {
+      const productData = {
+        name: newProduct.name,
+        thumbnail: newProduct.thumbnail,
+        price: newProduct.price,
+        description: newProduct.description,
+        brand_id: newProduct.brand_id,
+        category_id: newProduct.category_id,
+      };
+      console.log("Sending product data:", productData);
+      await instance.post("/api/v1/products", productData);
+      alert("Sản phẩm đã được thêm thành công!");
+      setNewProduct({ name: "", thumbnail: "", price: 0, description: "", category_id: 0, brand_id: 0 });
+    } catch (error) {
+      console.error("Lỗi khi thêm sản phẩm:", error);
+    }
+  };
 
   return (
     <div className="admin-wrapper">
       <div className="sidebar">
         <button onClick={() => setActiveTab("orders")}>📦 Quản lý đơn hàng</button>
         <button onClick={() => setActiveTab("add")}>➕ Thêm sản phẩm</button>
-        <button onClick={() => setActiveTab("delete")}>🗑️ Xóa sản phẩm</button>
+        {/* <button onClick={() => setActiveTab("delete")}>🗑️ Xóa sản phẩm</button> */}
       </div>
-
       <div className="content">
-        {/* Thêm 3 nút lọc trạng thái */}
         <div className="status-filters">
           <button onClick={() => handleStatusFilter("pending")}>Chờ xử lý</button>
           <button onClick={() => handleStatusFilter("cancelled")}>Đã hủy</button>
           <button onClick={() => handleStatusFilter("delivered")}>Đã hoàn thành</button>
-          <button onClick={() => handleStatusFilter("")}>Tất cả</button> {/* Hiển thị tất cả đơn hàng */}
+          <button onClick={() => handleStatusFilter("")}>Tất cả</button>
         </div>
-
         {activeTab === "orders" && (
           <>
             <h2>📦 Danh sách Đơn hàng</h2>
@@ -196,9 +192,7 @@ const handleAddProduct = async () => {
                   filteredOrders.map((order) => (
                     <tr
                       key={order.id}
-                      style={{
-                        opacity: order.status === "delivered" || order.status === "cancelled" ? 0.5 : 1,
-                      }}
+                      style={{ opacity: order.status === "delivered" || order.status === "cancelled" ? 0.5 : 1 }}
                     >
                       <td>{order.id}</td>
                       <td>{order.fullname}</td>
@@ -232,48 +226,22 @@ const handleAddProduct = async () => {
         {activeTab === "add" && (
           <div className="form-add">
             <h2>➕ Thêm sản phẩm</h2>
-            <input
-              name="name"
-              value={newProduct.name}
-              onChange={handleInputChange}
-              placeholder="Tên sản phẩm"
-            />
-            <input
-              name="price"
-              type="number"
-              value={newProduct.price}
-              onChange={handleInputChange}
-              placeholder="Giá"
-            />
-            <textarea
-              name="thumbnail"
-              value={newProduct.thumbnail}
-              onChange={handleInputChange}
-              placeholder="URL hình thu nhỏ"
-            />
-            <textarea
-              name="imageUrls"
-              value={newProduct.imageUrls}
-              onChange={handleInputChange}
-              placeholder="URL ảnh (phân cách bằng dấu ;) "
-            />
-            <textarea
-              name="description"
-              value={newProduct.description}
-              onChange={handleInputChange}
-              placeholder="Mô tả sản phẩm"
-            />
-
-            {/* Dropdown cho Category */}
+            <input name="name" value={newProduct.name} onChange={handleInputChange} placeholder="Tên sản phẩm" />
+            <input name="price" type="text" value={newProduct.price} onChange={handleInputChange} placeholder="Giá" />
+            <textarea name="thumbnail" value={newProduct.thumbnail} onChange={handleInputChange} placeholder="URL hình thu nhỏ" />
+            <textarea name="description" value={newProduct.description} onChange={handleInputChange} placeholder="Mô tả sản phẩm" />
+            <select value={newProduct.brand_id} onChange={handleBrandChange}>
+              <option value="">Chọn thương hiệu</option>
+              {brands.map((brand) => (
+                <option key={brand.id} value={brand.id}>{brand.name}</option>
+              ))}
+            </select>
             <select value={selectedCategory} onChange={handleCategoryChange}>
               <option value="">Chọn danh mục</option>
               {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
+                <option key={category.id} value={category.id}>{category.name}</option>
               ))}
             </select>
-
             <button onClick={handleAddProduct}>Thêm sản phẩm</button>
           </div>
         )}
