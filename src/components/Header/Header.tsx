@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import "./Header.css";
 import { Link, useNavigate } from "react-router-dom";
+import { link } from "fs";
 
 function Header({ categories, onCategoryChange }: { categories: any[], onCategoryChange: (categoryId: number) => void }) {
   const navigate = useNavigate();
-  console.log("Header component rendered with categories:", categories);
-  
+ // console.log("Header component rendered with categories:", categories);
 
   const phoneNumber = localStorage.getItem("phone_number");
   const fullName = localStorage.getItem("full_name");
@@ -24,29 +24,36 @@ function Header({ categories, onCategoryChange }: { categories: any[], onCategor
   const handleMouseEnter = () => setIsDropdownOpen(true);
   const handleMouseLeave = () => setIsDropdownOpen(false);
 
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+
+  const handleUserMouseEnter = () => setIsUserMenuOpen(true);
+  const handleUserMouseLeave = () => setIsUserMenuOpen(false);
+
   return (
     <header>
       <nav className="main-nav">
         <ul className="nav-left">
-  {/* Danh mục dropdown */}
-  <li
-    className="category-dropdown"
-    onMouseEnter={handleMouseEnter}
-    onMouseLeave={handleMouseLeave}
-  >
-    <button className="category-button">Danh mục</button>
-    {isDropdownOpen && (
-      <ul className="dropdown-menu">
-        {categories.map((category) => (
-          <li key={category.id} onClick={() => onCategoryChange(category.id)}>
-            {category.name}
+          {/* Danh mục dropdown */}
+          <li
+            className="category-dropdown"
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          >
+            <button className="category-button">Danh mục</button>
+            {isDropdownOpen && (
+              <Link to="/products">
+                <ul className="dropdown-menu">
+                  {categories.map((category) => (
+                    <li key={category.id} onClick={() => onCategoryChange(category.id)}>
+                      {category.name}
+                    </li>
+                  ))}
+                </ul>
+              </Link>
+              
+            )}
           </li>
-        ))}
-      </ul>
-    )}
-  </li>
-</ul>
-
+        </ul>
 
         {/* Thanh tìm kiếm */}
         <div className="search-container">
@@ -60,11 +67,19 @@ function Header({ categories, onCategoryChange }: { categories: any[], onCategor
 
         <div className="nav-right">
           {fullName ? (
-            <div className="auth-info">
+            <div
+              className="user-dropdown"
+              onMouseEnter={handleUserMouseEnter}
+              onMouseLeave={handleUserMouseLeave}
+            >
               <span className="fullname">Xin chào, {fullName}</span>
-              <button className="logout-btn" onClick={handleLogout}>
-                Đăng xuất
-              </button>
+              {isUserMenuOpen && (
+                <ul className="dropdown-menu user-menu">
+                  <li><Link to="/orders">Đơn hàng</Link></li>
+                  <li><Link to="/profile">Thông tin khách hàng</Link></li>
+                  <li onClick={handleLogout}>Đăng xuất</li>
+                </ul>
+              )}
             </div>
           ) : (
             <div className="auth-links">

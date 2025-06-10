@@ -9,6 +9,8 @@ import Signup from "./Signup/Signup";
 import Header from "./components/Header/Header";
 import instance from "./axios";
 import AdminPage from "./admin/Ad";
+import UserProfile from "./components/User/UserProfile/UserProfile";
+import Order from "./components/User/Order/Order";
 
 function App() {
   const [products, setProducts] = useState<any[]>([]);
@@ -25,7 +27,7 @@ function App() {
         const { data } = await instance.get("/api/v1/categories/getAll");
         if (data && Array.isArray(data)) {
           setCategories(data);
-          console.log("Danh mục đã được lấy:", data);
+          //console.log("Danh mục đã được lấy:", data);
         } else {
           setCategories([]);
         }
@@ -83,6 +85,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/AdminPage" element={<AdminPage />} />
+        <Route path="/profile" element={<UserProfile />} />
+        <Route path="/orders" element={<Order />} />
       </Routes>
     </>
   );

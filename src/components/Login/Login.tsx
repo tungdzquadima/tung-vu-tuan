@@ -55,27 +55,37 @@ function Login() {
       });
 
       const user = userInfoRes.data; // Giả sử API trả về thông tin người dùng
+      console.log("User info:", userInfoRes.data); // In ra thông tin người dùng để kiểm tra
+
+      // Chuyển đổi ngày sinh sang múi giờ +7 (Asia/Ho_Chi_Minh)
+      const dateOfBirthUTC = new Date(user.date_of_birth); // Giả sử ngày sinh từ API là UTC
+      const dateOfBirthFormatted = dateOfBirthUTC.toLocaleString("en-GB", {
+        timeZone: "Asia/Ho_Chi_Minh",
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
 
       // Lưu các thông tin người dùng vào localStorage
       localStorage.setItem("phone_number", user.phone_number);
       localStorage.setItem("role_id", roleId);
       localStorage.setItem("full_name", user.fullname);  // Lưu fullName
       localStorage.setItem("address", user.address);  // Lưu address
-      localStorage.setItem("date_of_birth", user.date_of_birth);  // Lưu date_of_birth
+      localStorage.setItem("date_of_birth", dateOfBirthFormatted);  // Lưu date_of_birth sau khi chuyển múi giờ
 
       alert("Đăng nhập thành công!");
-//       const phoneNumber = localStorage.getItem("phone_number");
-// const fullName = localStorage.getItem("full_name");
-// const address = localStorage.getItem("address");
-// const dateOfBirth = localStorage.getItem("date_of_birth");
+      const phoneNumber = localStorage.getItem("phone_number");
+      const fullName = localStorage.getItem("full_name");
+      const address = localStorage.getItem("address");
+      const dateOfBirth = localStorage.getItem("date_of_birth");
 
-// console.log("Thông tin người dùng:");
+      console.log("Thông tin người dùng:");
 
-// console.log("Phone Number:", phoneNumber);
-// console.log("Full Name:", fullName);
-// console.log("Address:", address);
-// console.log("Date of Birth:", dateOfBirth);
-// console.log("Role ID:", roleId);
+      console.log("Phone Number:", phoneNumber);
+      console.log("Full Name:", fullName);
+      console.log("Address:", address);
+      console.log("Date of Birth:", dateOfBirth);
+      console.log("Role ID:", roleId);
 
       // Điều hướng theo role
       if (roleId === 1) {
