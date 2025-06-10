@@ -36,7 +36,7 @@ function ShopPage({ data, page, totalPages, onPageChange }: ShopPageProps) {
               <div className="product-details">
                 <h2 className="product-title">{product.name}</h2>
                 <p className="product-price">
-                  ${product.price.toLocaleString()}
+                  {product.price.toLocaleString()} VND
                 </p>
                 <p className="product-description">
                   {product.description.length > 100

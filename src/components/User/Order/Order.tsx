@@ -49,6 +49,8 @@ function Order() {
 
         // Gọi API để lấy đơn hàng của người dùng
         const response = await instance.get(`/api/v1/orders/user/${userId}`);
+        console.log("Đơn hàng đã lấy:", response.data); // In ra dữ liệu đơn hàng để kiểm tra
+        
         setOrders(response.data || []); // Đảm bảo rằng orders là mảng
         setLoading(false); // Dữ liệu đã được tải xong
       } catch (error) {
