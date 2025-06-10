@@ -57,12 +57,16 @@ function Header({ categories, onCategoryChange }: { categories: any[], onCategor
 
         {/* Thanh tìm kiếm */}
         <div className="search-container">
-          <input
+          <div className="search-wrapper">
+            <input
             type="text"
             className="search-input"
             placeholder="Tìm kiếm sản phẩm..."
+            
           />
           <button className="search-button">🔍</button>
+            </div>
+          
         </div>
 
         <div className="nav-right">
