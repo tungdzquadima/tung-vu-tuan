@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-import instance from "../../../axios"; // axios instance đã config baseURL
+import instance from "../../../axios";
 import { useNavigate } from "react-router-dom";
+import "./Order.css"; // Thêm dòng này để import CSS
 
 interface OrderDetail {
   id: number;
@@ -19,156 +20,210 @@ interface Order {
   phoneNumber: string;
   address: string;
   orderDate: string;
-  status: string; // Trạng thái đơn hàng
+  status: string;
   totalMoney: number;
   shippingAddress: string;
   shippingMethod: string;
   shippingDate: string;
   trackingNumber: string;
   paymentMethod: string;
+  active: boolean;
+  orderDetails: OrderDetail[];
 }
 
 function Order() {
   const navigate = useNavigate();
-  const [orders, setOrders] = useState<Order[]>([]); // State lưu trữ danh sách đơn hàng
-  const [loading, setLoading] = useState<boolean>(true); // Trạng thái để kiểm tra quá trình tải dữ liệu
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null); // Để lưu trữ đơn hàng đang được chọn
-  const [orderDetails, setOrderDetails] = useState<OrderDetail[]>([]); // Chi tiết sản phẩm trong đơn hàng
-  const [loadingDetails, setLoadingDetails] = useState<boolean>(false); // Trạng thái tải chi tiết sản phẩm
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [filter, setFilter] = useState<string>("all");
 
   useEffect(() => {
-    async function fetchOrders() {
+    async function fetchOrdersWithDetails() {
       try {
-        // Lấy user_id từ localStorage
         const userId = localStorage.getItem("user_id");
         if (!userId) {
           alert("Vui lòng đăng nhập!");
-          navigate("/login"); // Điều hướng đến trang login nếu không có user_id
+          navigate("/login");
           return;
         }
 
-        // Gọi API để lấy đơn hàng của người dùng
         const response = await instance.get(`/api/v1/orders/user/${userId}`);
-        console.log("Đơn hàng đã lấy:", response.data); // In ra dữ liệu đơn hàng để kiểm tra
-        
-        setOrders(response.data || []); // Đảm bảo rằng orders là mảng
-        setLoading(false); // Dữ liệu đã được tải xong
+        const ordersData: Order[] = response.data || [];
+
+        const ordersWithDetails = await Promise.all(
+          ordersData.map(async (order) => {
+            try {
+              const detailRes = await instance.get(`/api/v1/order_details/order/${order.id}`);
+              return { ...order, orderDetails: detailRes.data || [] };
+            } catch (err) {
+              console.error(`Lỗi khi lấy chi tiết đơn hàng ${order.id}:`, err);
+              return { ...order, orderDetails: [] };
+            }
+          })
+        );
+
+        setOrders(ordersWithDetails);
       } catch (error) {
         console.error("Lỗi khi lấy đơn hàng:", error);
-        setLoading(false);
         alert("Đã xảy ra lỗi khi lấy danh sách đơn hàng.");
+      } finally {
+        setLoading(false);
       }
     }
 
-    fetchOrders();
+    fetchOrdersWithDetails();
   }, [navigate]);
 
-  // Gọi API để lấy chi tiết đơn hàng khi người dùng click vào đơn hàng
-  const handleOrderClick = async (order: Order) => {
-    if (selectedOrder?.id === order.id) {
-      // Nếu đơn hàng đã được chọn, bỏ chọn
-      setSelectedOrder(null);
-      setOrderDetails([]); // Xóa chi tiết sản phẩm khi bỏ chọn
-    } else {
-      // Nếu đơn hàng chưa được chọn, gọi API lấy chi tiết
-      setSelectedOrder(order);
-      setLoadingDetails(true); // Đánh dấu đang tải chi tiết
+  const handleOrderClick = (order: Order) => {
+    setSelectedOrder((prev) => (prev?.id === order.id ? null : order));
+  };
 
-      try {
-        const response = await instance.get(`/api/v1/order_details/order/${order.id}`);
-        setOrderDetails(response.data || []); // Lưu chi tiết sản phẩm vào state
-      } catch (error) {
-        console.error("Lỗi khi lấy chi tiết đơn hàng:", error);
-        alert("Đã xảy ra lỗi khi lấy chi tiết sản phẩm.");
-      } finally {
-        setLoadingDetails(false); // Kết thúc quá trình tải chi tiết
+  const handleCancelOrder = async (orderId: number) => {
+    if (!window.confirm("Bạn có chắc chắn muốn hủy đơn hàng này?")) return;
+    try {
+      await instance.put(`/api/v1/orders/cancel/${orderId}`);
+      alert("Đã hủy đơn hàng thành công.");
+      setOrders((prev) =>
+        prev.map((o) =>
+          o.id === orderId ? { ...o, status: "cancelled", active: false } : o
+        )
+      );
+      if (selectedOrder?.id === orderId) {
+        setSelectedOrder({ ...selectedOrder, status: "cancelled", active: false });
       }
+    } catch (error) {
+      console.error("Lỗi khi hủy đơn hàng:", error);
+      alert("Không thể hủy đơn hàng.");
     }
   };
 
-  // Nếu đang tải dữ liệu, hiển thị loading
-  if (loading) {
-    return <div>Đang tải đơn hàng...</div>;
-  }
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case "pending":
+        return "Chờ xác nhận";
+      case "processing":
+        return "Đang chuẩn bị";
+      case "shipped":
+        return "Đang giao";
+      case "delivered":
+        return "Đã giao";
+      case "cancelled":
+        return "Đã hủy";
+      default:
+        return "Không xác định";
+    }
+  };
 
-  // Nếu không có đơn hàng, hiển thị thông báo
-  if (orders.length === 0) {
-    return <div>Chưa có đơn hàng nào.</div>;
-  }
+  const filteredOrders = orders.filter((order) => {
+    if (filter === "all") return true;
+    return order.status === filter;
+  });
+
+  if (loading) return <div className="order-container">Đang tải đơn hàng...</div>;
 
   return (
-    <div>
+    <div className="order-container">
       <h2>Danh sách đơn hàng</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Mã đơn hàng</th>
-            <th>Ngày đặt hàng</th>
-            <th>Tổng tiền</th>
-            <th>Trạng thái</th>
-            <th>Phương thức thanh toán</th>
-            <th>Hành động</th>
-          </tr>
-        </thead>
-        <tbody>
-          {orders.map((order) => (
-            <tr
-              key={order.id}
-              onClick={() => handleOrderClick(order)}
-              style={{ cursor: "pointer" }}
-            >
-              <td>{order.id}</td>
-              <td>{new Date(order.orderDate).toLocaleDateString()}</td>
-              <td>{order.totalMoney.toLocaleString()} VND</td>
-              <td>{order.status === 'delivered' ? 'Đã giao' : 'Chờ xử lý'}</td>
-              <td>{order.paymentMethod}</td>
-              <td>Chi tiết</td>
+
+      <div className="filter-buttons">
+        <button onClick={() => setFilter("all")}>Tất cả</button>
+        <button onClick={() => setFilter("pending")}>Chờ xác nhận</button>
+        <button onClick={() => setFilter("processing")}>Đang chuẩn bị</button>
+        <button onClick={() => setFilter("shipped")}>Đang giao</button>
+        <button onClick={() => setFilter("delivered")}>Đã giao</button>
+        <button onClick={() => setFilter("cancelled")}>Đã hủy</button>
+      </div>
+
+      {filteredOrders.length === 0 ? (
+        <p>Không có đơn hàng nào ở trạng thái này.</p>
+      ) : (
+        <table className="order-table">
+          <thead>
+            <tr>
+              <th>Mã đơn hàng</th>
+              <th>Ngày đặt</th>
+              <th>Tổng tiền</th>
+              <th>Trạng thái</th>
+              <th>Thanh toán</th>
+              <th>Hành động</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-
-      {selectedOrder && (
-        <div style={{ marginTop: "20px", border: "1px solid #ccc", padding: "10px" }}>
-          <h3>Chi tiết đơn hàng #{selectedOrder.id}</h3>
-          <p><strong>Họ tên:</strong> {selectedOrder.fullname}</p>
-          <p><strong>Địa chỉ giao hàng:</strong> {selectedOrder.shippingAddress}</p>
-          <p><strong>Ngày giao hàng:</strong> {new Date(selectedOrder.shippingDate).toLocaleDateString()}</p>
-          <p><strong>Phương thức giao hàng:</strong> {selectedOrder.shippingMethod}</p>
-          <p><strong>Tracking Number:</strong> {selectedOrder.trackingNumber}</p>
-
-          <h4>Chi tiết sản phẩm:</h4>
-          {loadingDetails ? (
-            <div>Đang tải chi tiết sản phẩm...</div>
-          ) : (
-            <table>
-              <thead>
-                <tr>
-                  <th>Số lượng</th>
-                  <th>Màu sắc</th>
-                  <th>Đơn giá</th>
-                  <th>Tổng tiền</th>
+          </thead>
+          <tbody>
+            {filteredOrders.map((order) => (
+              <React.Fragment key={order.id}>
+                <tr onClick={() => handleOrderClick(order)} className="order-row">
+                  <td>{order.id}</td>
+                  <td>{new Date(order.orderDate).toLocaleDateString()}</td>
+                  <td>
+                    {order.orderDetails
+                      .reduce((sum, item) => sum + item.total_money, 0)
+                      .toLocaleString()} VND
+                  </td>
+                  <td>{getStatusLabel(order.status)}</td>
+                  <td>{order.paymentMethod}</td>
+                  <td>
+                    {["pending", "processing"].includes(order.status) && order.active && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCancelOrder(order.id);
+                        }}
+                      >
+                        Hủy đơn
+                      </button>
+                    )}
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {orderDetails.length > 0 ? (
-                  orderDetails.map((detail) => (
-                    <tr key={detail.id}>
-                      <td>{detail.number_of_products}</td>
-                      <td>{detail.color}</td>
-                      <td>{detail.price.toLocaleString()} VND</td>
-                      <td>{detail.total_money.toLocaleString()} VND</td>
-                    </tr>
-                  ))
-                ) : (
+                {selectedOrder?.id === order.id && (
                   <tr>
-                    <td colSpan={5}>Không có chi tiết sản phẩm cho đơn hàng này.</td>
+                    <td colSpan={6}>
+                      <div className="order-details">
+                        <h3>Chi tiết đơn hàng #{order.id}</h3>
+                        <p><strong>Họ tên:</strong> {order.fullname}</p>
+                        <p><strong>Số điện thoại:</strong> {order.phoneNumber}</p>
+                        <p><strong>Email:</strong> {order.email}</p>
+                        <p><strong>Địa chỉ:</strong> {order.address}</p>
+                        <p><strong>Địa chỉ giao:</strong> {order.shippingAddress}</p>
+                        <p><strong>Ngày giao:</strong> {new Date(order.shippingDate).toLocaleDateString()}</p>
+                        <p><strong>Phương thức giao hàng:</strong> {order.shippingMethod}</p>
+                        <p><strong>Tracking Number:</strong> {order.trackingNumber}</p>
+
+                        <h4>Chi tiết sản phẩm:</h4>
+                        <table className="detail-table">
+                          <thead>
+                            <tr>
+                              <th>Số lượng</th>
+                              <th>Màu sắc</th>
+                              <th>Đơn giá</th>
+                              <th>Tổng tiền</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {order.orderDetails.length > 0 ? (
+                              order.orderDetails.map((detail) => (
+                                <tr key={detail.id}>
+                                  <td>{detail.number_of_products}</td>
+                                  <td>{detail.color}</td>
+                                  <td>{detail.price.toLocaleString()} VND</td>
+                                  <td>{detail.total_money.toLocaleString()} VND</td>
+                                </tr>
+                              ))
+                            ) : (
+                              <tr>
+                                <td colSpan={4}>Không có chi tiết sản phẩm.</td>
+                              </tr>
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+                    </td>
                   </tr>
                 )}
-              </tbody>
-            </table>
-          )}
-        </div>
+              </React.Fragment>
+            ))}
+          </tbody>
+        </table>
       )}
     </div>
   );
