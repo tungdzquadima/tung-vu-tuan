@@ -6,6 +6,7 @@ import { link } from "fs";
 function Header({ categories, onCategoryChange }: { categories: any[], onCategoryChange: (categoryId: number) => void }) {
   const navigate = useNavigate();
  // console.log("Header component rendered with categories:", categories);
+  const [searchKeyword, setSearchKeyword] = useState("");
 
   const phoneNumber = localStorage.getItem("phone_number");
   const fullName = localStorage.getItem("full_name");
@@ -28,6 +29,18 @@ function Header({ categories, onCategoryChange }: { categories: any[], onCategor
 
   const handleUserMouseEnter = () => setIsUserMenuOpen(true);
   const handleUserMouseLeave = () => setIsUserMenuOpen(false);
+
+  
+const handleSearch = () => {
+  if (searchKeyword.trim() !== "") {
+    navigate(`/products?search=${encodeURIComponent(searchKeyword.trim())}`);
+  }
+};
+ const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
 
   return (
     <header>
@@ -62,9 +75,11 @@ function Header({ categories, onCategoryChange }: { categories: any[], onCategor
             type="text"
             className="search-input"
             placeholder="Tìm kiếm sản phẩm..."
-            
+            value={searchKeyword}
+            onChange={(e) => setSearchKeyword(e.target.value)}
+             onKeyDown={handleKeyDown}
           />
-          <button className="search-button">🔍</button>
+          <button className="search-button" onClick={handleSearch}>🔍</button>
             </div>
           
         </div>

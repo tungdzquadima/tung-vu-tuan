@@ -12,9 +12,6 @@ function UserProfile() {
       address: localStorage.getItem("address"),
       dateOfBirth: localStorage.getItem("date_of_birth"),
       email: localStorage.getItem("email"),
-      registrationDate: localStorage.getItem("registration_date"),
-      purchaseHistory: JSON.parse(localStorage.getItem("purchase_history") || "[]"), // Cung cấp giá trị mặc định là mảng rỗng
-      profilePicture: localStorage.getItem("profile_picture")
     };
     setUserData(user);
   }, []);

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useSearchParams } from "react-router-dom";
 import ShopPage from "./components/ShopPage/ShopPage";
 import HomePage from "./components/HomePage/HomePage";
 import AboutPage from "./components/About/AboutPage";
@@ -19,6 +19,36 @@ function App() {
   const [categories, setCategories] = useState<any[]>([]); // Để lưu trữ danh mục
   const [selectedCategory, setSelectedCategory] = useState<number>(4); // Mặc định là "Máy tính"
   const limit = 20;
+const [searchParams] = useSearchParams();
+const searchKeyword = searchParams.get("search");
+
+
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        const { data } = await instance.get("/api/v1/products/search", {
+          params: {
+            name: searchKeyword,
+            page: 0,
+            limit: 10,
+          },
+        });
+
+        if (data && Array.isArray(data.products)) {
+          setProducts(data.products);
+        } else {
+          setProducts([]);
+        }
+      } catch (error) {
+        console.error("Lỗi khi tìm kiếm sản phẩm:", error);
+        setProducts([]);
+      }
+    }
+
+    if (searchKeyword) {
+      fetchProducts();
+    }
+  }, [searchKeyword]);
 
   // Fetch danh mục sản phẩm
   useEffect(() => {
