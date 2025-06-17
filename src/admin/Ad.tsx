@@ -86,9 +86,9 @@ const AdminPage: React.FC = () => {
     }
   };
 
-  const handleCompleteOrder = async (id: number) => {
+  const updateOrderStatus = async (id: number, newStatus: string) => {
     try {
-      await instance.patch(`/api/v1/orders/${id}/status`, { status: "delivered" });
+      await instance.patch(`/api/v1/orders/${id}/status`, { status: newStatus });
       fetchOrders();
     } catch (error) {
       console.error("Lỗi khi cập nhật trạng thái đơn hàng:", error);
@@ -148,7 +148,6 @@ const AdminPage: React.FC = () => {
         brand_id: newProduct.brand_id,
         category_id: newProduct.category_id,
       };
-      console.log("Sending product data:", productData);
       await instance.post("/api/v1/products", productData);
       alert("Sản phẩm đã được thêm thành công!");
       setNewProduct({ name: "", thumbnail: "", price: 0, description: "", category_id: 0, brand_id: 0 });
@@ -162,17 +161,18 @@ const AdminPage: React.FC = () => {
       <div className="sidebar">
         <button onClick={() => setActiveTab("orders")}>📦 Quản lý đơn hàng</button>
         <button onClick={() => setActiveTab("add")}>➕ Thêm sản phẩm</button>
-        {/* <button onClick={() => setActiveTab("delete")}>🗑️ Xóa sản phẩm</button> */}
       </div>
       <div className="content">
-        <div className="status-filters">
-          <button onClick={() => handleStatusFilter("pending")}>Chờ xử lý</button>
-          <button onClick={() => handleStatusFilter("cancelled")}>Đã hủy</button>
-          <button onClick={() => handleStatusFilter("delivered")}>Đã hoàn thành</button>
-          <button onClick={() => handleStatusFilter("")}>Tất cả</button>
-        </div>
         {activeTab === "orders" && (
           <>
+            <div className="status-filters">
+              <button onClick={() => handleStatusFilter("pending")}>Chờ xử lý</button>
+              <button onClick={() => handleStatusFilter("processing")}>Đang xử lý</button>
+              <button onClick={() => handleStatusFilter("shipped")}>Đã gửi</button>
+              <button onClick={() => handleStatusFilter("delivered")}>Đã giao</button>
+              <button onClick={() => handleStatusFilter("cancelled")}>Đã hủy</button>
+              <button onClick={() => handleStatusFilter("")}>Tất cả</button>
+            </div>
             <h2>📦 Danh sách Đơn hàng</h2>
             <table className="admin-table">
               <thead>
@@ -202,11 +202,17 @@ const AdminPage: React.FC = () => {
                       <td>{translateStatus(order.status)}</td>
                       <td>{order.totalMoney?.toLocaleString()} đ</td>
                       <td>
-                        {order.status !== "delivered" && order.status !== "cancelled" && (
-                          <>
-                            <button onClick={() => handleCompleteOrder(order.id)}>✅ Hoàn thành</button>
-                            <button onClick={() => handleDeleteOrder(order.id)}>🗑️ Xóa</button>
-                          </>
+                        {order.status === "pending" && (
+                          <button onClick={() => updateOrderStatus(order.id, "processing")}>🔄 Xử lý</button>
+                        )}
+                        {order.status === "processing" && (
+                          <button onClick={() => updateOrderStatus(order.id, "shipped")}>🚚 Gửi hàng</button>
+                        )}
+                        {order.status === "shipped" && (
+                          <button onClick={() => updateOrderStatus(order.id, "delivered")}>✅ Giao hàng</button>
+                        )}
+                        {order.status !== "cancelled" && order.status !== "delivered" && (
+                          <button onClick={() => handleDeleteOrder(order.id)}>❌ Hủy đơn</button>
                         )}
                       </td>
                     </tr>
@@ -244,25 +250,6 @@ const AdminPage: React.FC = () => {
             </select>
             <button onClick={handleAddProduct}>Thêm sản phẩm</button>
           </div>
-        )}
-
-        {activeTab === "delete" && (
-          <>
-            <h2>🗑️ Danh sách Sản phẩm</h2>
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Tên</th>
-                  <th>Giá</th>
-                  <th>Xóa</th>
-                </tr>
-              </thead>
-              <tbody>
-                {/* Hiển thị sản phẩm nếu có */}
-              </tbody>
-            </table>
-          </>
         )}
       </div>
     </div>

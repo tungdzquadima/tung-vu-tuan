@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import instance from "../../axios";
 
 interface Category {
@@ -24,10 +24,14 @@ interface Product {
 
 function ProductDetail() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+
   const [product, setProduct] = useState<Product | null>(null);
   const [quantity, setQuantity] = useState<number>(1);
   const [showOrderForm, setShowOrderForm] = useState<boolean>(false);
   const [orderDetailsForm, setOrderDetailsForm] = useState<boolean>(false);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
   const [userInfo, setUserInfo] = useState({
     fullname: "",
     email: "",
@@ -66,6 +70,7 @@ function ProductDetail() {
 
   const handleOrderSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
 
     if (!product) {
       alert("Sản phẩm không hợp lệ");
@@ -78,6 +83,7 @@ function ProductDetail() {
       return;
     }
 
+    setIsSubmitting(true);
     try {
       const orderResponse = await instance.post("/api/v1/orders", {
         user_id: userId,
@@ -86,7 +92,7 @@ function ProductDetail() {
         phone_number: userInfo.phone_number,
         address: userInfo.address,
         note: userInfo.note,
-        total_money: product?.price * quantity,
+        total_money: product.price * quantity,
         shipping_method: userInfo.shipping_method,
         shipping_address: userInfo.shipping_address,
         tracking_number: userInfo.tracking_number,
@@ -106,6 +112,8 @@ function ProductDetail() {
     } catch (error) {
       console.error("Lỗi khi tạo đơn hàng:", error);
       alert("Đã xảy ra lỗi khi đặt hàng. Vui lòng thử lại.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -123,6 +131,7 @@ function ProductDetail() {
       });
 
       alert("Đặt hàng thành công!");
+      navigate("/products"); // Điều hướng về trang product
     } catch (error) {
       console.error("Lỗi khi tạo chi tiết đơn hàng:", error);
       alert("Đã xảy ra lỗi khi tạo chi tiết đơn hàng.");
@@ -131,12 +140,12 @@ function ProductDetail() {
 
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newQuantity = parseInt(e.target.value);
-    if (newQuantity >= 1) {
+    if (newQuantity >= 1 && product) {
       setQuantity(newQuantity);
       setOrderDetail((prevState) => ({
         ...prevState,
         number_of_products: newQuantity,
-        total_money: product!.price * newQuantity,
+        total_money: product.price * newQuantity,
       }));
     }
   };
@@ -197,7 +206,9 @@ function ProductDetail() {
             onChange={(e) => setUserInfo({ ...userInfo, note: e.target.value })}
             style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
           />
-          <button type="submit" style={{ padding: "10px 20px" }}>Tạo đơn hàng</button>
+          <button type="submit" disabled={isSubmitting} style={{ padding: "10px 20px" }}>
+            {isSubmitting ? "Đang tạo..." : "Tạo đơn hàng"}
+          </button>
         </form>
       )}
 
@@ -220,7 +231,9 @@ function ProductDetail() {
             style={{ marginBottom: "10px" }}
           />
           <br />
-          <button type="submit" style={{ padding: "10px 20px", marginTop: "10px" }}>Gửi đơn hàng</button>
+          <button type="submit" style={{ padding: "10px 20px", marginTop: "10px" }}>
+            Gửi đơn hàng
+          </button>
         </form>
       )}
 
