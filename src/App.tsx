@@ -57,7 +57,7 @@ const searchKeyword = searchParams.get("search");
         const { data } = await instance.get("/api/v1/categories/getAll");
         if (data && Array.isArray(data)) {
           setCategories(data);
-          //console.log("Danh mục đã được lấy:", data);
+          console.log("Danh mục đã được lấy:", data);
         } else {
           setCategories([]);
         }
