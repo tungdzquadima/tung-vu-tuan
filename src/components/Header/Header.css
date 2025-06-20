@@ -1,6 +1,6 @@
 /* === Header Tổng Thể === */
 header {
-  background: linear-gradient(135deg, #4e8ad4, #8a4ae5); /* Màu gradient */
+  background: linear-gradient(135deg, #ff0000, #8a4ae5); /* Màu gradient */
   padding: 15px 30px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Shadow nhẹ */
   position: sticky;
@@ -48,7 +48,7 @@ header {
 
 .category-button:hover {
   background-color: #fff;
-  color: #4e8ad4;
+  color: #ae3232;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
@@ -79,7 +79,7 @@ header {
 }
 
 .dropdown-menu li:hover {
-  background-color: #4e8ad4;
+  background-color: #d00909;
   color: #fff;
 }
 
@@ -109,7 +109,7 @@ header {
 }
 
 .search-input:focus {
-  border-color: #4e8ad4;
+  border-color: #a3abb4;
   box-shadow: 0 0 5px rgba(78, 138, 212, 0.5);
 }
 
