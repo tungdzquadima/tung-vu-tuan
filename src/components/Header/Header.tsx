@@ -52,7 +52,7 @@ const handleSearch = () => {
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
           >
-            <button className="category-button">Danh mục</button>
+            <button className="category-button"><i className="fas fa-stream"></i> Danh mục</button>
             {isDropdownOpen && (
               <Link to="/products">
                 <ul className="dropdown-menu">

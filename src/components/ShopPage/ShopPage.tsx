@@ -9,7 +9,8 @@ interface ShopPageProps {
 }
 
 function ShopPage({ data, page, totalPages, onPageChange }: ShopPageProps) {
-  if (!data.length) return <p>Không có sản phẩm nào.</p>;
+  if (!data.length) return       <i className="fas fa-spinner fa-spin fa-5x"></i>
+;
 
   // Hàm xử lý khi nhấn nút "Trang trước"
   const handlePreviousPage = () => {

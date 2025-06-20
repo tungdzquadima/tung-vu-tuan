@@ -106,9 +106,10 @@ const searchKeyword = searchParams.get("search");
 
   return (
     <>
+
       <Header categories={categories} onCategoryChange={handleCategoryChange} />
       <Routes>
-        <Route path="/" element={<HomePage />} />
+        <Route path="/" element={<ShopPage data={products} page={page} totalPages={totalPages} onPageChange={handlePageChange} />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/products" element={<ShopPage data={products} page={page} totalPages={totalPages} onPageChange={handlePageChange} />} />
         <Route path="/product-detail/:id" element={<ProductDetail />} />
@@ -118,6 +119,8 @@ const searchKeyword = searchParams.get("search");
         <Route path="/profile" element={<UserProfile />} />
         <Route path="/orders" element={<Order />} />
       </Routes>
+      
+      
     </>
   );
 }
