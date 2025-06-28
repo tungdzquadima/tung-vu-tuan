@@ -303,28 +303,20 @@ function Header({ categories, onCategoryChange }: { categories: any[], onCategor
             
             {/* Đăng nhập hoặc Profile */}
             <div className="col-auto d-flex align-items-center position-relative">
-              <div className="cps-btn-red-light" style={{display: 'flex', gap: 8}}>
-                {!isLoggedIn ? (
-                  <>
-                    <button
-                      className="header-btn d-flex align-items-center gap-2"
-                      onClick={() => navigate('/signup')}
-                    >
-                      <FaUser className="cps-icon" /> Đăng ký
-                    </button>
-                    <button
-                      className="header-btn d-flex align-items-center gap-2"
-                      onClick={() => handleActionClick('login')}
-                    >
-                      <FaUser className="cps-icon" /> Đăng nhập
-                    </button>
-                  </>
-                ) : (
+              <div className="cps-btn-red-light">
+                {isLoggedIn ? (
                   <button
                     className="header-btn d-flex align-items-center gap-2"
                     onClick={() => handleActionClick('profile')}
                   >
                     <FaUser className="cps-icon" />
+                  </button>
+                ) : (
+                  <button
+                    className="header-btn d-flex align-items-center gap-2"
+                    onClick={() => handleActionClick('login')}
+                  >
+                    <FaUser className="cps-icon" /> Đăng nhập
                   </button>
                 )}
               </div>
@@ -340,29 +332,46 @@ function Header({ categories, onCategoryChange }: { categories: any[], onCategor
             <button className="close-btn" onClick={() => setShowLoginPopup(false)}>
               <FaTimes />
             </button>
-            <div className="login-popup-content" style={{textAlign: 'center'}}>
-              <h3 className="smember-title" style={{color: '#e60004', fontWeight: 700}}>TVT TECH</h3>
-              {/* Ảnh linh vật, bạn có thể thay src bằng ảnh của bạn */}
-              <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="mascot" style={{width: 80, margin: '12px auto'}} />
-              <p style={{margin: '16px 0', color: '#333', fontWeight: 500}}>
-                Vui lòng đăng nhập tài khoản TVT TECH để xem ưu đãi và thanh toán dễ dàng hơn.
-              </p>
-              <div style={{display: 'flex', gap: 12, justifyContent: 'center', marginTop: 24}}>
-                <button
-                  className="btn btn-outline-secondary"
-                  style={{minWidth: 100, fontWeight: 600}}
-                  onClick={() => { setShowLoginPopup(false); navigate('/signup'); }}
-                >
-                  Đăng ký
-                </button>
-                <button
-                  className="btn btn-primary"
-                  style={{minWidth: 100, fontWeight: 600, background: 'linear-gradient(90deg, #ff4b2b, #ff416c)', border: 'none'}} 
-                  onClick={() => { setShowLoginPopup(true); navigate('/login'); }}
-                >
-                  Đăng nhập
-                </button>
-              </div>
+            <div className="login-popup-content">
+              <h3 className="smember-title">Đăng nhập</h3>
+              <form onSubmit={handleLogin}>
+                <div className="mb-3">
+                  <label htmlFor="phone" className="form-label">Số điện thoại</label>
+                  <input
+                    type="tel"
+                    className="form-control"
+                    id="phone"
+                    value={loginForm.phone}
+                    onChange={(e) => setLoginForm({...loginForm, phone: e.target.value})}
+                    placeholder="Nhập số điện thoại"
+                    required
+                  />
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="password" className="form-label">Mật khẩu</label>
+                  <input
+                    type="password"
+                    className="form-control"
+                    id="password"
+                    value={loginForm.password}
+                    onChange={(e) => setLoginForm({...loginForm, password: e.target.value})}
+                    placeholder="Nhập mật khẩu"
+                    required
+                  />
+                </div>
+                <div className="d-grid gap-2">
+                  <button type="submit" className="btn btn-primary">
+                    Đăng nhập
+                  </button>
+                  <button 
+                    type="button" 
+                    className="btn btn-outline-secondary"
+                    onClick={() => setShowLoginPopup(false)}
+                  >
+                    Hủy
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         </div>

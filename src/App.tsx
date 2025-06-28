@@ -7,6 +7,7 @@ import Login from "./components/Login/Login";
 import ProductDetail from "./components/ShopPage/ProductDetail"; // Import ProductDetail component
 import Signup from "./Signup/Signup";
 import Header from "./components/Header/Header";
+import Footer from "./components/Footer/Footer";
 import instance from "./axios";
 import AdminPage from "./admin/Ad";
 import UserProfile from "./components/User/UserProfile/UserProfile";
@@ -117,6 +118,7 @@ function App() {
         <Route path="/orders" element={<Order />} />
         <Route path="/news" element={<NewsPage />} />
       </Routes>
+      <Footer />
     </>
   );
 }
