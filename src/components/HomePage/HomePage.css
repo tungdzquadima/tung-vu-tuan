@@ -1,0 +1,229 @@
+/* HomePage Styles */
+.cps-home {
+  background: #fafbfc;
+  min-height: 100vh;
+}
+.cps-home-banner {
+  background: linear-gradient(90deg, #4e8ad4 0%, #8a4ae5 100%);
+  border-radius: 18px;
+  min-height: 180px;
+  margin-top: 18px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+  padding: 32px 0;
+}
+.cps-home-title {
+  font-size: 1.3rem;
+  font-weight: bold;
+  margin-bottom: 12px;
+  color: #e60004;
+}
+.cps-home-cat-card {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  padding: 18px 0 10px 0;
+  transition: box-shadow 0.2s, transform 0.2s;
+  cursor: pointer;
+}
+.cps-home-cat-card:hover {
+  box-shadow: 0 4px 16px rgba(230,0,4,0.13);
+  transform: translateY(-2px) scale(1.03);
+}
+.cps-home-cat-icon {
+  font-size: 2.2rem;
+  color: #e60004;
+}
+.cps-home-cat-name {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #222;
+}
+.cps-home-prod-card {
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  transition: box-shadow 0.2s, transform 0.2s;
+  overflow: hidden;
+}
+.cps-home-prod-card:hover {
+  box-shadow: 0 6px 24px rgba(230,0,4,0.13);
+  transform: translateY(-2px) scale(1.03);
+}
+.cps-home-prod-img {
+  max-height: 180px;
+  object-fit: contain;
+  background: #fafafa;
+  padding: 12px;
+}
+.cps-home-prod-name {
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+.cps-home-prod-price {
+  font-size: 1.1rem;
+}
+.cps-home-promo-card {
+  background: #fff3f3;
+  border-radius: 12px;
+  padding: 14px 18px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #e60004;
+  box-shadow: 0 2px 8px rgba(230,0,4,0.04);
+}
+.cps-home-promo-icon {
+  font-size: 1.3rem;
+}
+.cps-home-news-card {
+  background: #f8f8f8;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 1rem;
+  color: #222;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+}
+.cps-home-news-icon {
+  font-size: 1.1rem;
+  color: #e60004;
+}
+.cps-home-section {
+  padding-left: 8px;
+  padding-right: 8px;
+}
+@media (max-width: 900px) {
+  .cps-home-banner {
+    min-height: 100px;
+    font-size: 1rem;
+    padding: 10px 0;
+  }
+  .cps-home-cat-card {
+    padding: 10px 0 6px 0;
+  }
+  .cps-home-prod-img {
+    max-height: 100px;
+    padding: 6px;
+  }
+}
+
+/* Slider Banner */
+.cps-home-slider {
+  height: 250px;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.slider-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.slider-slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+  background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4));
+}
+
+.slider-slide.active {
+  opacity: 1;
+}
+
+.slider-content {
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.slider-content h1 {
+  font-size: 3rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.slider-content p {
+  font-size: 1.5rem;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Navigation Buttons */
+.slider-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: none;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  font-size: 24px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+
+.slider-btn:hover {
+  background: rgba(255, 255, 255, 0.4);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.slider-btn-prev {
+  left: 20px;
+}
+
+.slider-btn-next {
+  right: 20px;
+}
+
+/* Dots Indicator */
+.slider-dots {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  z-index: 10;
+}
+
+.slider-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.slider-dot:hover {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.slider-dot.active {
+  background: white;
+  transform: scale(1.2);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .cps-home-slider {
+    height: 300px;
+  }
+  
+  .slider-content h1 {
+    font-size: 2rem;
+  }
+  
+  .slider-content p {
+    font-size: 1.2rem;
+  }
+  
+  .slider-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+} 

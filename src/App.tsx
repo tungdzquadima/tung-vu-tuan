@@ -11,6 +11,8 @@ import instance from "./axios";
 import AdminPage from "./admin/Ad";
 import UserProfile from "./components/User/UserProfile/UserProfile";
 import Order from "./components/User/Order/Order";
+import Navbar from "./components/navbar";
+import NewsPage from "./components/NewsPage/NewsPage";
 
 function App() {
   const [products, setProducts] = useState<any[]>([]);
@@ -19,36 +21,53 @@ function App() {
   const [categories, setCategories] = useState<any[]>([]); // Để lưu trữ danh mục
   const [selectedCategory, setSelectedCategory] = useState<number>(4); // Mặc định là "Máy tính"
   const limit = 20;
-const [searchParams] = useSearchParams();
-const searchKeyword = searchParams.get("search");
-
+  const [searchParams] = useSearchParams();
+  const searchKeyword = searchParams.get("search");
+  const categoryParam = searchParams.get("category");
 
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const { data } = await instance.get("/api/v1/products/search", {
-          params: {
-            name: searchKeyword,
-            page: 0,
-            limit: 10,
-          },
-        });
-
-        if (data && Array.isArray(data.products)) {
-          setProducts(data.products);
+        if (searchKeyword) {
+          const { data } = await instance.get("/api/v1/products/search", {
+            params: {
+              name: searchKeyword,
+              page: 0,
+              limit: 10,
+            },
+          });
+          if (data && Array.isArray(data.products)) {
+            setProducts(data.products);
+            setTotalPages(data.totalPages || 0);
+          } else {
+            setProducts([]);
+            setTotalPages(0);
+          }
         } else {
-          setProducts([]);
+          let categoryId = selectedCategory;
+          if (categoryParam) {
+            categoryId = Number(categoryParam);
+            setSelectedCategory(categoryId);
+          }
+          const { data } = await instance.get("/api/v1/products/category/" + categoryId, {
+            params: { page, limit },
+          });
+          if (data.products && Array.isArray(data.products)) {
+            setProducts(data.products);
+            setTotalPages(data.totalPages || 0);
+          } else {
+            setProducts([]);
+            setTotalPages(0);
+          }
         }
       } catch (error) {
-        console.error("Lỗi khi tìm kiếm sản phẩm:", error);
+        console.error("Lỗi khi lấy sản phẩm:", error);
         setProducts([]);
+        setTotalPages(0);
       }
     }
-
-    if (searchKeyword) {
-      fetchProducts();
-    }
-  }, [searchKeyword]);
+    fetchProducts();
+  }, [searchKeyword, page, selectedCategory, categoryParam]);
 
   // Fetch danh mục sản phẩm
   useEffect(() => {
@@ -57,7 +76,7 @@ const searchKeyword = searchParams.get("search");
         const { data } = await instance.get("/api/v1/categories/getAll");
         if (data && Array.isArray(data)) {
           setCategories(data);
-          //console.log("Danh mục đã được lấy:", data);
+          console.log("Danh mục đã được lấy:", data);
         } else {
           setCategories([]);
         }
@@ -68,28 +87,6 @@ const searchKeyword = searchParams.get("search");
 
     fetchCategories();
   }, []);
-
-  // Fetch sản phẩm theo category và phân trang
-  useEffect(() => {
-    async function fetchProducts() {
-      try {
-        const { data } = await instance.get("/api/v1/products/category/" + selectedCategory, {
-          params: { page, limit },
-        });
-
-        if (data.products && Array.isArray(data.products)) {
-          setProducts(data.products);
-          setTotalPages(data.totalPages || 0);  // Sử dụng totalPages để phân trang
-        } else {
-          setProducts([]); // Nếu không có sản phẩm, set mảng rỗng
-          setTotalPages(0); // Tổng số trang = 0 nếu không có sản phẩm
-        }
-      } catch (error) {
-        console.log("Lỗi không lấy được sản phẩm:", error);
-      }
-    }
-    fetchProducts();
-  }, [page, selectedCategory]); // Cập nhật khi page hoặc category thay đổi
 
   // Hàm thay đổi danh mục
   const handleCategoryChange = (categoryId: number) => {
@@ -107,6 +104,7 @@ const searchKeyword = searchParams.get("search");
   return (
     <>
       <Header categories={categories} onCategoryChange={handleCategoryChange} />
+      <Navbar />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/about" element={<AboutPage />} />
@@ -117,6 +115,7 @@ const searchKeyword = searchParams.get("search");
         <Route path="/AdminPage" element={<AdminPage />} />
         <Route path="/profile" element={<UserProfile />} />
         <Route path="/orders" element={<Order />} />
+        <Route path="/news" element={<NewsPage />} />
       </Routes>
     </>
   );

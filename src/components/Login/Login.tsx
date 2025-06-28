@@ -91,6 +91,9 @@ function Login() {
       console.log("User ID:", userId);
       
 
+      // Dispatch event để Header biết đăng nhập thành công
+      window.dispatchEvent(new Event('loginSuccess'));
+
       // Điều hướng theo role
       if (roleId === 1) {
         navigate("/AdminPage");

@@ -45,18 +45,22 @@ function ShopPage({ data, page, totalPages, onPageChange }: ShopPageProps) {
                 </p>
               </div>
               <button
-              className="order-button"
-              onClick={() => {
-                // Handle đặt hàng (ví dụ: mở modal hoặc điều hướng đến trang thanh toán)
-                console.log("Đặt hàng sản phẩm với ID: ", product.id);
-              }}
-            >
-              Đặt hàng
-            </button>
+                className="order-button"
+                onClick={() => {
+                  // Handle đặt hàng (ví dụ: mở modal hoặc điều hướng đến trang thanh toán)
+                  console.log("Đặt hàng sản phẩm với ID: ", product.id);
+                }}
+              >
+                Mua ngay
+              </button>
+              <div className="product-rating">
+                <div className="rating-left">
+                  {Array.from({ length: 5 }).map((_, idx) => (
+                    <span key={idx} className="star">★</span>
+                  ))}
+                </div>
+              </div>
             </Link>
-
-            {/* Button đặt hàng */}
-            
           </div>
         ))}
       </div>
