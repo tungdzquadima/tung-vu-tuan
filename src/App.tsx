@@ -103,10 +103,11 @@ function App() {
 
   return (
     <>
+
       <Header categories={categories} onCategoryChange={handleCategoryChange} />
       <Navbar />
       <Routes>
-        <Route path="/" element={<HomePage />} />
+        <Route path="/" element={<ShopPage data={products} page={page} totalPages={totalPages} onPageChange={handlePageChange} />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/products" element={<ShopPage data={products} page={page} totalPages={totalPages} onPageChange={handlePageChange} />} />
         <Route path="/product-detail/:id" element={<ProductDetail />} />
@@ -117,6 +118,8 @@ function App() {
         <Route path="/orders" element={<Order />} />
         <Route path="/news" element={<NewsPage />} />
       </Routes>
+      
+      
     </>
   );
 }

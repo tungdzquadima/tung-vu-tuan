@@ -219,6 +219,7 @@ function Header({ categories, onCategoryChange }: { categories: any[], onCategor
   };
 
   return (
+<<<<<<< HEAD
     <>
       <header className="cps-header">
         <div className="container py-2">
@@ -254,6 +255,45 @@ function Header({ categories, onCategoryChange }: { categories: any[], onCategor
                   </ul>
                 )}
               </div>
+=======
+    <header>
+      <nav className="main-nav">
+        <ul className="nav-left">
+          {/* Danh mục dropdown */}
+          <li
+            className="category-dropdown"
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          >
+            <button className="category-button"><i className="fas fa-stream"></i> Danh mục</button>
+            {isDropdownOpen && (
+              <Link to="/products">
+                <ul className="dropdown-menu">
+                  {categories.map((category) => (
+                    <li key={category.id} onClick={() => onCategoryChange(category.id)}>
+                      {category.name}
+                    </li>
+                  ))}
+                </ul>
+              </Link>
+              
+            )}
+          </li>
+        </ul>
+
+        {/* Thanh tìm kiếm */}
+        <div className="search-container">
+          <div className="search-wrapper">
+            <input
+            type="text"
+            className="search-input"
+            placeholder="Tìm kiếm sản phẩm..."
+            value={searchKeyword}
+            onChange={(e) => setSearchKeyword(e.target.value)}
+             onKeyDown={handleKeyDown}
+          />
+          <button className="search-button" onClick={handleSearch}>🔍</button>
+>>>>>>> cb156da8c652821a3e03f77006eb3fcb3e0edeee
             </div>
             {/* Thanh tìm kiếm */}
             <div className="col d-flex align-items-center justify-content-center">
